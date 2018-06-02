@@ -8,7 +8,7 @@ Cache is cleaned on `INSERT/UPDATE/DELETE/TRUNCATE...` only for the single table
 ## What problem this solves
 When we call the same query (for example on ORM based system) we retrieve from the database the same data doing the same operation and some time we overload the database (for example retrieving big data multiple times).
 
-This class prevent to do the same query on the database, retrieving the data from memroy without overload the Database in some cases.
+This class prevent to do the same query on the database, retrieving the data from memory without overload the Database in some cases.
 
 ### Requirements
 * PHP

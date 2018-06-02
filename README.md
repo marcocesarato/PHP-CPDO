@@ -1,14 +1,14 @@
 # CPDO - Memory Cached PDO Class
 Version: 0.1
 
-This class permit to have cached `SELECT` queries on Memory (RAM). Then after the execution the cache will be deleted.
+This class permit to have cached `SELECT/SHOW/DESCRIBE` queries on Memory (RAM). Then after the execution the cache will be deleted.
 
 Cache is cleaned on `INSERT/UPDATE/DELETE/TRUNCATE...` only for the single table.
 
 ## What problem this solves
-When we call the same query (for example on ORM based system) we retrieve from the database the same data doing the same operation and some time we overload the database (for example retrieving big data multiple times).
+When we call the same query (for example on ORM based system) we retrieve from the database the same data doing the same operation and some time we overload the database server (for example retrieving big data multiple times).
 
-This class prevent to do the same query on the database, retrieving the data from memory without overload the Database in some cases.
+This class prevent to do the same query on the database, retrieving the data from memory without overload the database server in some cases.
 
 ### Requirements
 * PHP

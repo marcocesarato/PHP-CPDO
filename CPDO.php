@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.0.3
+ * @version 0.1.1.4
  */
 class CPDO extends PDO
 {
@@ -85,6 +85,8 @@ class CPDOStatement extends PDOStatement
         $method = $this->__parseMethod();
         switch ($method) {
             case 'SELECT':
+            case 'SHOW':
+            case 'DESCRIBE':
                 if (empty($this->__getcache())) {
                     parent::execute($input_parameters);
                 }
@@ -94,6 +96,7 @@ class CPDOStatement extends PDOStatement
             case 'DELETE':
             case 'DROP':
             case 'TRUNCATE':
+            case 'ALTER':
                 $this->__deletecache();
                 parent::execute($input_parameters);
                 break;
@@ -177,7 +180,7 @@ class CPDOStatement extends PDOStatement
         $trace = $e->getTrace();
         $function = $trace[1]['function'];
 
-        $table = $this->__parseTable();
+        $table = $this->__keycache();
         self::$__cache[$table][$this->queryString][$function][$arg] = $value;
     }
 
@@ -191,7 +194,7 @@ class CPDOStatement extends PDOStatement
         $trace = $e->getTrace();
         $function = $trace[1]['function'];
 
-        $table = $this->__parseTable();
+        $table = $this->__keycache();
         if (isset(self::$__cache[$table][$this->queryString][$function][$arg]))
             return self::$__cache[$table][$this->queryString][$function][$arg];
         return null;
@@ -202,10 +205,25 @@ class CPDOStatement extends PDOStatement
      */
     protected function __deletecache()
     {
-        $table = $this->__parseTable();
-        self::$__cache[$table] = array();
+        $tables = $this->__parseTables();
+        foreach (array_keys(self::$__cache) as $key){
+            foreach ($tables as $table){
+                if(strpos($key, $table) !== false ) {
+                    self::$__cache[$key] = array();
+                }
+            }
+        }
     }
 
+    /**
+     * Get key cache
+     * @param $query
+     * @return string
+     */
+    protected function __keycache(){
+        $tables = $this->__parseTables();
+        return implode('&',$tables);
+    }
 
     /**
      * Get SQL Query method
@@ -227,19 +245,6 @@ class CPDOStatement extends PDOStatement
             }
         }
         return '';
-    }
-
-    /**
-     * Get SQL Query First Table
-     * @package Light-SQL-Parser-Class
-     * @link https://github.com/marcocesarato/PHP-Light-SQL-Parser-Class
-     *
-     * @param $query
-     * @return string
-     */
-    public function __parseTable(){
-        $tables = $this->__parseTables();
-        return (isset($tables[0])) ? $tables[0] : null;
     }
 
     /**

@@ -14,7 +14,7 @@ This class prevent to do the same query on the database, retrieving the data fro
 * PHP
 * Database
 
-## Databases supported (`CDPO::connect`)
+## Databases supported (`CPDO::connect`)
 * 4D
 * CUBRID
 * Firebird/Interbase

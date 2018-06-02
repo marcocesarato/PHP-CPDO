@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.1.4
+ * @version 0.1.2.5
  */
 class CPDO extends PDO
 {
@@ -65,15 +65,17 @@ class CPDOStatement extends PDOStatement
     public static $__cache = array();
 
     // From Light SQL Parser Class
-    protected static $__conts = array('OR', 'AND', 'ON', 'LIMIT', 'WHERE', 'JOIN', 'GROUP', 'ORDER', 'OPTION', 'LEFT', 'INNER', 'RIGHT', 'OUTER', 'SET', 'HAVING', 'VALUES', 'SELECT', '\(', '\)');
-    protected static $__conts_impl = '';
+    protected static $__parser_method = array();
+    protected static $__parser_tables = array();
+    protected static $__parser_conns = array('OR', 'AND', 'ON', 'LIMIT', 'WHERE', 'JOIN', 'GROUP', 'ORDER', 'OPTION', 'LEFT', 'INNER', 'RIGHT', 'OUTER', 'SET', 'HAVING', 'VALUES', 'SELECT', '\(', '\)');
+    protected static $__parser_conns_impl = '';
 
     /**
      * CachePDOStatement constructor.
      */
     protected function __construct() {
-        if(empty(self::$__conts_impl))
-            self::$__conts_impl = implode('|', self::$__conts);
+        if(empty(self::$__parser_conns_impl))
+            self::$__parser_conns_impl = implode('|', self::$__parser_conns);
     }
 
     /**
@@ -222,7 +224,7 @@ class CPDOStatement extends PDOStatement
      */
     protected function __keycache(){
         $tables = $this->__parseTables();
-        return implode('&',$tables);
+        return implode('/',$tables);
     }
 
     /**
@@ -234,12 +236,17 @@ class CPDOStatement extends PDOStatement
      * @return string
      */
     protected function __parseMethod(){
+
+        if(!empty(self::$__parser_method[$this->queryString]))
+            return self::$__parser_method[$this->queryString];
+
         $methods = array('SELECT','INSERT','UPDATE','DELETE','RENAME','SHOW','SET','DROP','CREATE INDEX','CREATE TABLE','EXPLAIN','DESCRIBE','TRUNCATE','ALTER');
         $queries = $this->__parseQueries();
         foreach($queries as $query){
             foreach($methods as $method) {
                 $_method = str_replace(' ', '[\s]+', $method);
                 if(preg_match('#^[\s]*'.$_method.'[\s]+#i', $query)){
+                    self::$__parser_method[$this->queryString] = $method;
                     return $method;
                 }
             }
@@ -255,11 +262,15 @@ class CPDOStatement extends PDOStatement
      * @return array
      */
     protected function __parseTables(){
+
+        if(!empty(self::$__parser_tables[$this->queryString]))
+            return self::$__parser_tables[$this->queryString];
+
         $results = array();
         $queries = $this->__parseQueries();
         foreach($queries as $query) {
             $patterns = array(
-                '#[\s]+FROM[\s]+(([\s]*(?!'.self::$__conts_impl.')[\w]+([\s]+(AS[\s]+)?(?!'.self::$__conts_impl.')[\w]+)?[\s]*[,]?)+)#i',
+                '#[\s]+FROM[\s]+(([\s]*(?!'.self::$__parser_conns_impl.')[\w]+([\s]+(AS[\s]+)?(?!'.self::$__parser_conns_impl.')[\w]+)?[\s]*[,]?)+)#i',
                 '#[\s]*INSERT[\s]+INTO[\s]+([\w]+)#i',
                 '#[\s]*UPDATE[\s]+([\w]+)#i',
                 '#[\s]+[\s]+JOIN[\s]+([\w]+)#i',
@@ -276,7 +287,9 @@ class CPDOStatement extends PDOStatement
                 }
             }
         }
-        return array_unique($results);
+        $tables = array_unique($results);
+        self::$__parser_tables[$this->queryString] = $tables;
+        return $tables;
     }
 
     /**

@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.2.8
+ * @version 0.1.2.9
  */
 class CPDO extends PDO
 {
@@ -31,7 +31,7 @@ class CPDO extends PDO
      * @return bool|static
      */
     public static function connect($database_type, $database_name = null, $database_host = null, $database_user = null, $database_pswd = null){
-
+    	
     	if(empty($database_host) && in_array($database_type, array('mysql', 'pgsql', 'mssql', 'ibm', 'firebird', '4D', 'interbase', 'informix'))){
 		    trigger_error("CDPO: Database host is empty", E_USER_WARNING);
 	    }
@@ -61,10 +61,10 @@ class CPDO extends PDO
         } elseif ($database_type == 'informix') {
             return new static('informix:host='.$database_host.'; database='.$database_name.'; server='.$database_host, $database_user, $database_pswd);
         } elseif(empty($database_type)) {
-	        trigger_error("CDPO: Database type is empty!", E_USER_WARNING);
+	        trigger_error("CDPO: Database type is empty!", E_USER_ERROR);
 	        return false;
         }
-	    trigger_error("CDPO: Database type is not supported yet", E_USER_WARNING);
+	    trigger_error("CDPO: Database type `".htmlentities($database_type)."` is not supported yet", E_USER_ERROR);
         return false;
     }
 

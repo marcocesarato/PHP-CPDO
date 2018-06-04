@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.2.6
+ * @version 0.1.2.7
  */
 class CPDO extends PDO
 {
@@ -30,26 +30,68 @@ class CPDO extends PDO
      * @param null $database_pswd
      * @return bool|static
      */
-    public static function connect($database_type, $database_name, $database_host = null, $database_user = null, $database_pswd = null){
+    public static function connect($database_type, $database_name = null, $database_host = null, $database_user = null, $database_pswd = null){
         if ($database_type == 'mysql') {
+	        if(empty($database_name))
+		        trigger_error("CDPO: Database name is empty", E_USER_WARNING);
+        	if(empty($database_host))
+        		trigger_error("CDPO: Database host is empty", E_USER_WARNING);
+	        if(empty($database_user))
+		        trigger_error("CDPO: Database user is empty", E_USER_WARNING);
             return new static('mysql:host='.$database_host.';dbname='.$database_name, $database_user, $database_pswd);
         } elseif ($database_type == 'pgsql') {
+	        if(empty($database_name))
+		        trigger_error("CDPO: Database name is empty", E_USER_WARNING);
+	        if(empty($database_host))
+		        trigger_error("CDPO: Database host is empty", E_USER_WARNING);
+	        if(empty($database_user))
+		        trigger_error("CDPO: Database user is empty", E_USER_WARNING);
             return new static('pgsql:host='.$database_host.';dbname='.$database_name, $database_user, $database_pswd);
         } elseif ($database_type == 'mssql') {
+	        if(empty($database_name))
+		        trigger_error("CDPO: Database name is empty", E_USER_WARNING);
+	        if(empty($database_host))
+		        trigger_error("CDPO: Database host is empty", E_USER_WARNING);
+	        if(empty($database_user))
+		        trigger_error("CDPO: Database user is empty", E_USER_WARNING);
             return new static('sqlsrv:Server='.$database_host.';Database='.$database_name, $database_user, $database_pswd);
         } elseif ($database_type == 'sqlite') {
+	        if(empty($database_name))
+		        trigger_error("CDPO: Database name is empty", E_USER_WARNING);
             return new static('sqlite:/'.$database_name);
         } elseif ($database_type == 'oracle') {
+	        if(empty($database_name))
+		        trigger_error("CDPO: Database name is empty", E_USER_WARNING);
             return new static('oci:dbname='.$database_name);
         } elseif ($database_type == 'ibm') {
+	        if(empty($database_name))
+		        trigger_error("CDPO: Database name is empty", E_USER_WARNING);
+	        if(empty($database_host))
+		        trigger_error("CDPO: Database host is empty", E_USER_WARNING);
+	        if(empty($database_user))
+		        trigger_error("CDPO: Database user is empty", E_USER_WARNING);
             return new static('ibm:DRIVER={IBM DB2 ODBC DRIVER};DATABASE='.$database_name.';HOSTNAME='.$database_host.';PROTOCOL=TCPIP;', $database_user, $database_pswd);
         } elseif (($database_type == 'firebird') || ($database_type == 'interbase')) {
             return new static('firebird:dbname='.$database_name.';host='.$database_host);
         } elseif ($database_type == '4D') {
+	        if(empty($database_host))
+		        trigger_error("CDPO: Database host is empty", E_USER_WARNING);
+	        if(empty($database_user))
+		        trigger_error("CDPO: Database user is empty", E_USER_WARNING);
             return new static('4D:host='.$database_host, $database_user, $database_pswd);
         } elseif ($database_type == 'informix') {
+	        if(empty($database_name))
+		        trigger_error("CDPO: Database name is empty", E_USER_WARNING);
+	        if(empty($database_host))
+		        trigger_error("CDPO: Database host is empty", E_USER_WARNING);
+	        if(empty($database_user))
+		        trigger_error("CDPO: Database user is empty", E_USER_WARNING);
             return new static('informix:host='.$database_host.'; database='.$database_name.'; server='.$database_host, $database_user, $database_pswd);
+        } elseif(empty($database_type)) {
+	        trigger_error("CDPO: Database type is empty!", E_USER_WARNING);
+	        return false;
         }
+	    trigger_error("CDPO: Database type is not supported yet", E_USER_WARNING);
         return false;
     }
 

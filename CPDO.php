@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.2.9
+ * @version 0.1.2.10
  */
 class CPDO extends PDO
 {
@@ -31,7 +31,7 @@ class CPDO extends PDO
      * @return bool|static
      */
     public static function connect($database_type, $database_name = null, $database_host = null, $database_user = null, $database_pswd = null){
-    	
+
     	if(empty($database_host) && in_array($database_type, array('mysql', 'pgsql', 'mssql', 'ibm', 'firebird', '4D', 'interbase', 'informix'))){
 		    trigger_error("CDPO: Database host is empty", E_USER_WARNING);
 	    }
@@ -82,16 +82,6 @@ class CPDOStatement extends PDOStatement
     // From Light SQL Parser Class
     protected static $__parser_method = array();
     protected static $__parser_tables = array();
-    protected static $__parser_conns = array('OR', 'AND', 'ON', 'LIMIT', 'WHERE', 'JOIN', 'GROUP', 'ORDER', 'OPTION', 'LEFT', 'INNER', 'RIGHT', 'OUTER', 'SET', 'HAVING', 'VALUES', 'SELECT', '\(', '\)');
-    protected static $__parser_conns_impl = '';
-
-    /**
-     * CachePDOStatement constructor.
-     */
-    protected function __construct() {
-        if(empty(self::$__parser_conns_impl))
-            self::$__parser_conns_impl = implode('|', self::$__parser_conns);
-    }
 
     /**
      * @param null $input_parameters
@@ -278,6 +268,8 @@ class CPDOStatement extends PDOStatement
      */
     protected function __parseTables(){
 
+	    $connectors = "OR|AND|ON|LIMIT|WHERE|JOIN|GROUP|ORDER|OPTION|LEFT|INNER|RIGHT|OUTER|SET|HAVING|VALUES|SELECT|\(|\)";
+
         if(!empty(self::$__parser_tables[$this->queryString]))
             return self::$__parser_tables[$this->queryString];
 
@@ -285,7 +277,7 @@ class CPDOStatement extends PDOStatement
         $queries = $this->__parseQueries();
         foreach($queries as $query) {
             $patterns = array(
-                '#[\s]+FROM[\s]+(([\s]*(?!'.self::$__parser_conns_impl.')[\w]+([\s]+(AS[\s]+)?(?!'.self::$__parser_conns_impl.')[\w]+)?[\s]*[,]?)+)#i',
+                '#[\s]+FROM[\s]+(([\s]*(?!'.$connectors.')[\w]+([\s]+(AS[\s]+)?(?!'.$connectors.')[\w]+)?[\s]*[,]?)+)#i',
                 '#[\s]*INSERT[\s]+INTO[\s]+([\w]+)#i',
                 '#[\s]*UPDATE[\s]+([\w]+)#i',
                 '#[\s]+[\s]+JOIN[\s]+([\w]+)#i',

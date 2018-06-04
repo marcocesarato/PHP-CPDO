@@ -1,4 +1,5 @@
-# CPDO - Memory Cached PDO Class
+# CPDO - Cache PDO Query Class
+
 Version: 0.1
 
 This package can retrieve PDO query results from cache variables.

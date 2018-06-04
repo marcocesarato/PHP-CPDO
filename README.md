@@ -1,7 +1,13 @@
 # CPDO - Memory Cached PDO Class
 Version: 0.1
 
-This class permit to have cached `SELECT/SHOW/DESCRIBE` queries on Memory (RAM). Then after the execution the cache will be deleted.
+This package can retrieve PDO query results from cache variables.
+
+It extends the base PDO class and override some functions to handle database query execution and store the query results in variables.
+
+The class can also return query results for cached queries for previously executed queries to retrieve the results faster for repeated queries.
+
+It permit to have cached `SELECT/SHOW/DESCRIBE` queries on Memory (RAM). Then after the execution the cache will be deleted.
 
 Cache is cleaned on `INSERT/UPDATE/DELETE/TRUNCATE...` only for the single table.
 

@@ -112,7 +112,7 @@ class CPDO extends PDO
 			case 'DESCRIBE':
 				$cache = CPDOCache::getcache($statement);
 				if (empty($cache)) {
-					$result = parent::query($statement, $mode/*,$arg3, $ctorargs*/);
+					$result = parent::query($statement /*,$mode,$arg3, $ctorargs*/);
 					CPDOCache::setcache($statement, $result, 'query_'.$mode);
 					return $result;
 				}
@@ -126,7 +126,7 @@ class CPDO extends PDO
 			case 'ALTER':
 				CPDOCache::deletecache($statement);
 			default:
-				return parent::query($statement, $mode/*,$arg3, $ctorargs*/);
+				return parent::query($statement /*,$mode,$arg3, $ctorargs*/);
 		}
 	}
 

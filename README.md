@@ -44,7 +44,19 @@ The only one new feature implemented in this class is the DSN autogeneration if 
 instead use the constructor.
 
 ## (Optional) Persistent cache
+_PS: this usage is not recommended!!!_
+
 If you want a persitent you can use the method `CPDOCache::populate` for populate the cache and `CPDOCache::retrieve` for retrieve the cache.
+
+Thanks this methods you could implement a persistent cache system saving the data encoded (with json or serialization) and after restore the cache.
+
+Pro:
+- Less database stress
+- Less queries
+
+Cons:
+- Could compromise data
+- Could be slower (disk performance/clients connected)
 
 ### Example of usage
 ```php

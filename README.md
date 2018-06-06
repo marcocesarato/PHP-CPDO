@@ -42,3 +42,28 @@ The only one new feature implemented in this class is the DSN autogeneration if 
 `CPDO::connect($database_type, $database_name, $database_host = null, $database_user = null, $database_pswd = null)` 
 
 instead use the constructor.
+
+## (Optional) Persistent cache
+If you want a persitent you can use the method `CPDOCache::populate` for populate the cache and `CPDOCache::retrieve` for retrieve the cache.
+
+### Example of usage
+```php
+
+// Your loader/includes... => with require_once('CPDO.php');
+
+$database_cache_path = '/your/cache/path/database.json';
+
+$cache = file_get_contents($database_cache_path);
+$cache = json_decode($cache); // Or unserialize (slower)
+CPDOCache::populate($cache);
+unset($cache);
+
+
+// Your code...
+
+
+$cache = CPDOCache::retrieve();
+$cache = json_encode($cache); // Or serialize (slower)
+file_get_contents($database_cache_path, $cache);
+unset($cache);
+```

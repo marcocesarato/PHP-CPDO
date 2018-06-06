@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.4.16
+ * @version 0.1.4.17
  */
 class CPDO extends PDO
 {
@@ -249,6 +249,23 @@ class CPDOCache
 	// From Light SQL Parser Class
 	protected static $__parser_method = array();
 	protected static $__parser_tables = array();
+
+	/**
+	 * Populate cache
+	 * @param $mixed
+	 * @return bool
+	 */
+	public static function populate($cache){
+		self::$__cache = $cache;
+	}
+
+	/**
+	 * Retrieve Cache
+	 * @return array
+	 */
+	public static function retrieve(){
+		return self::$__cache;
+	}
 
 	/**
 	 * Set Cache

@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.3.14
+ * @version 0.1.4.15
  */
 class CPDO extends PDO
 {
@@ -73,28 +73,18 @@ class CPDO extends PDO
 	 */
 	public function exec ($statement) {
 		$method = CPDOCache::parseMethod($statement);
-		switch ($method) {
-			case 'SELECT':
-			case 'SHOW':
-			case 'DESCRIBE':
-				$cache = CPDOCache::getcache($statement);
-				if (empty($cache)) {
-					$result = parent::exec($statement);
-					CPDOCache::setcache($statement, $result, 'exec_');
-					return $result;
-				}
-				return $cache;
-				break;
-			case 'INSERT':
-			case 'UPDATE':
-			case 'DELETE':
-			case 'DROP':
-			case 'TRUNCATE':
-			case 'ALTER':
-				CPDOCache::deletecache($statement);
-			default:
-				return parent::exec($statement);
+		if(in_array($method, CPDOCache::$actions['archive'])){
+			$cache = CPDOCache::getcache($statement);
+			if (empty($cache)) {
+				$result = parent::exec($statement);
+				CPDOCache::setcache($statement, $result, 'exec');
+				return $result;
+			}
+			return $cache;
+		} elseif(in_array($method, CPDOCache::$actions['delete'])) {
+			CPDOCache::deletecache($statement);
 		}
+		return parent::exec($statement);
 	}
 
 	/**
@@ -104,30 +94,33 @@ class CPDO extends PDO
 	 * @param array $ctorargs
 	 * @return array|bool|null|PDOStatement
 	 */
-	public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = array()) {
+	public function query($statement, $mode = null, $arg3 = null, $ctorargs = null) {
+
 		$method = CPDOCache::parseMethod($statement);
-		switch ($method) {
-			case 'SELECT':
-			case 'SHOW':
-			case 'DESCRIBE':
-				$cache = CPDOCache::getcache($statement);
-				if (empty($cache)) {
-					$result = parent::query($statement /*,$mode,$arg3, $ctorargs*/);
-					CPDOCache::setcache($statement, $result, 'query_'.$mode);
-					return $result;
-				}
+
+		if(in_array($method, CPDOCache::$actions['archive'])){
+			$cache = CPDOCache::getcache($statement);
+			if (!empty($cache))
 				return $cache;
-				break;
-			case 'INSERT':
-			case 'UPDATE':
-			case 'DELETE':
-			case 'DROP':
-			case 'TRUNCATE':
-			case 'ALTER':
-				CPDOCache::deletecache($statement);
-			default:
-				return parent::query($statement /*,$mode,$arg3, $ctorargs*/);
+		} elseif(in_array($method, CPDOCache::$actions['delete'])) {
+			CPDOCache::deletecache($statement);
 		}
+
+		if(!empty($ctorargs)) {
+			if(empty($mode)) $mode = PDO::ATTR_DEFAULT_FETCH_MODE;
+			$result = parent::query($statement, $mode, $arg3, $ctorargs);
+		} elseif(!empty($arg3)) {
+			if (empty($mode)) $mode = PDO::ATTR_DEFAULT_FETCH_MODE;
+			$result = parent::query($statement, $mode, $arg3);
+		} elseif(!empty($mode))
+			$result = parent::query($statement, $mode);
+		else
+			$result = parent::query($statement);
+
+		if(in_array($method, CPDOCache::$actions['archive']))
+			CPDOCache::setcache($statement, $result, 'query' . $mode);
+
+		return $result;
 	}
 
 }
@@ -142,30 +135,26 @@ class CPDOStatement extends PDOStatement
 
 	/**
 	 * @param null $input_parameters
-	 * @return bool|void
+	 * @return bool
 	 */
     public function execute($input_parameters = null)
     {
         $method = CPDOCache::parseMethod($this->queryString);
-	    $cache = CPDOCache::getcache($this->queryString);
-        switch ($method) {
-            case 'SELECT':
-            case 'SHOW':
-            case 'DESCRIBE':
-                if (empty($cache)) {
-                    parent::execute($input_parameters);
-                }
-                break;
-            case 'INSERT':
-            case 'UPDATE':
-            case 'DELETE':
-            case 'DROP':
-            case 'TRUNCATE':
-            case 'ALTER':
-	            CPDOCache::deletecache($this->queryString);
-            default:
-                parent::execute($input_parameters);
-        }
+	    if(in_array($method, CPDOCache::$actions['archive'])){
+		    $cache = CPDOCache::getcache($this->queryString);
+		    if (empty($cache)) {
+			    $cache = CPDOCache::getcache($this->queryString);
+			    if (empty($cache)) {
+			    	if(!empty($input_parameters))
+				        return parent::execute($input_parameters);
+			    	return parent::execute();
+			    }
+		    }
+		    return $cache;
+	    } elseif(in_array($method, CPDOCache::$actions['delete'])) {
+		    CPDOCache::deletecache($this->queryString);
+	    }
+	    return parent::execute($input_parameters);
     }
 
 	/**
@@ -174,12 +163,19 @@ class CPDOStatement extends PDOStatement
 	 * @param int $cursor_offset
 	 * @return mixed|null
 	 */
-    public function fetch($fetch_style = null, $cursor_orientation = PDO::FETCH_ORI_NEXT, $cursor_offset = 0)
+    public function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null)
     {
         $cache = CPDOCache::getcache($this->queryString,$fetch_style);
         if (empty($cache)) {
-            $result = parent::fetch($this->queryString,$fetch_style/*, $cursor_orientation, $cursor_offset*/);
-	        CPDOCache::setcache($this->queryString, $result, $fetch_style);
+	        if(!empty($cursor_offset)) {
+	        	if(empty($cursor_orientation)) $cursor_orientation = PDO::FETCH_ORI_NEXT;
+		        $result = parent::fetch($fetch_style, $cursor_orientation, $cursor_offset);
+	        } elseif(!empty($cursor_orientation))
+                $result = parent::fetch($fetch_style, $cursor_orientation);
+	        else
+		        $result = parent::fetch($fetch_style);
+
+	        CPDOCache::setcache($this->queryString, $result, 'fetch'.$fetch_style);
             return $result;
         }
         return $cache;
@@ -191,12 +187,19 @@ class CPDOStatement extends PDOStatement
 	 * @param array $ctor_args
 	 * @return array|null
 	 */
-    public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = array())
+    public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null)
     {
         $cache = CPDOCache::getcache($this->queryString, $fetch_style);
         if (empty($cache)) {
-            $result = parent::fetchAll($fetch_style/*, $fetch_argument, $ctor_args*/);
-	        CPDOCache::setcache($this->queryString, $result, 'all_' . $fetch_style);
+
+	        if(!empty($ctor_args))
+		        $result = parent::fetchAll($fetch_style, $fetch_argument, $ctor_args);
+	        elseif(!empty($fetch_argument))
+		        $result = parent::fetchAll($fetch_style, $fetch_argument);
+	        else
+		        $result = parent::fetchAll($fetch_style);
+
+	        CPDOCache::setcache($this->queryString, $result, 'fetchAll' . $fetch_style);
             return $result;
         }
         return $cache;
@@ -207,11 +210,16 @@ class CPDOStatement extends PDOStatement
 	 * @param array $ctor_args
 	 * @return mixed|null
 	 */
-    public function fetchObject($class_name = "stdClass", $ctor_args = array())
+    public function fetchObject($class_name = "stdClass", $ctor_args = null)
     {
         $cache = CPDOCache::getcache($this->queryString, $class_name);
+
         if (empty($cache)) {
-            $result = parent::fetchObject($class_name/*, $ctor_args*/);
+	        if(!empty($ctor_args))
+		        $result = parent::fetchAll($class_name, $ctor_args);
+	        else
+                $result = parent::fetchObject($class_name);
+
 	        CPDOCache::setcache($this->queryString, $result, $class_name);
             return $result;
         }
@@ -237,7 +245,13 @@ class CPDOStatement extends PDOStatement
 class CPDOCache
 {
 
-	public static $__cache = array();
+	public static $actions = array(
+		'archive' => array('SELECT','SHOW','DESCRIBE'),
+		'delete' => array('INSERT','UPDATE','DELETE','DROP','TRUNCATE','ALTER')
+	);
+
+	protected static $__cache = array();
+
 	// From Light SQL Parser Class
 	protected static $__parser_method = array();
 	protected static $__parser_tables = array();
@@ -297,7 +311,7 @@ class CPDOCache
 	 * @param $query
 	 * @return string
 	 */
-	public static function keycache($query){
+	protected static function keycache($query){
 		$tables = self::parseTables($query);
 		return implode('/',$tables);
 	}

@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.4.19
+ * @version 0.1.4.20
  */
 class CPDO extends PDO
 {
@@ -16,7 +16,7 @@ class CPDO extends PDO
 	 */
 	function __construct($dsn, $username = "", $password = "", $driver_options = array()) {
 		parent::__construct($dsn, $username, $password, $driver_options);
-		$this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', array($this)));
+		$this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', $this));
 	}
 
 	/**

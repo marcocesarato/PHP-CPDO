@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.1.4.20
+ * @version 0.2.0.21
  */
 class CPDO extends PDO
 {
@@ -16,7 +16,9 @@ class CPDO extends PDO
 	 */
 	function __construct($dsn, $username = "", $password = "", $driver_options = array()) {
 		parent::__construct($dsn, $username, $password, $driver_options);
-		$this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', $this));
+		parent::setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+		parent::setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', $this));
+		$this->disableDebug();
 	}
 
 	/**
@@ -41,23 +43,23 @@ class CPDO extends PDO
 		}
 
 		if ($database_type == 'mysql') {
-			return new static('mysql:host=' . $database_host . ';dbname=' . $database_name, $database_user, $database_pswd);
+			return new CPDO('mysql:host=' . $database_host . ';dbname=' . $database_name, $database_user, $database_pswd);
 		} elseif ($database_type == 'pgsql') {
-			return new static('pgsql:host=' . $database_host . ';dbname=' . $database_name, $database_user, $database_pswd);
+			return new CPDO('pgsql:host=' . $database_host . ';dbname=' . $database_name, $database_user, $database_pswd);
 		} elseif ($database_type == 'mssql') {
-			return new static('sqlsrv:Server=' . $database_host . ';Database=' . $database_name, $database_user, $database_pswd);
+			return new CPDO('sqlsrv:Server=' . $database_host . ';Database=' . $database_name, $database_user, $database_pswd);
 		} elseif ($database_type == 'sqlite') {
-			return new static('sqlite:/' . $database_name);
+			return new CPDO('sqlite:/' . $database_name);
 		} elseif ($database_type == 'oracle') {
-			return new static('oci:dbname=' . $database_name);
+			return new CPDO('oci:dbname=' . $database_name);
 		} elseif ($database_type == 'ibm') {
-			return new static('ibm:DRIVER={IBM DB2 ODBC DRIVER};DATABASE=' . $database_name . ';HOSTNAME=' . $database_host . ';PROTOCOL=TCPIP;', $database_user, $database_pswd);
+			return new CPDO('ibm:DRIVER={IBM DB2 ODBC DRIVER};DATABASE=' . $database_name . ';HOSTNAME=' . $database_host . ';PROTOCOL=TCPIP;', $database_user, $database_pswd);
 		} elseif (($database_type == 'firebird') || ($database_type == 'interbase')) {
-			return new static('firebird:dbname=' . $database_name . ';host=' . $database_host);
+			return new CPDO('firebird:dbname=' . $database_name . ';host=' . $database_host);
 		} elseif ($database_type == '4D') {
-			return new static('4D:host=' . $database_host, $database_user, $database_pswd);
+			return new CPDO('4D:host=' . $database_host, $database_user, $database_pswd);
 		} elseif ($database_type == 'informix') {
-			return new static('informix:host=' . $database_host . '; database=' . $database_name . '; server=' . $database_host, $database_user, $database_pswd);
+			return new CPDO('informix:host=' . $database_host . '; database=' . $database_name . '; server=' . $database_host, $database_user, $database_pswd);
 		} elseif (empty($database_type)) {
 			trigger_error("CDPO: Database type is empty!", E_USER_ERROR);
 			return false;
@@ -71,19 +73,29 @@ class CPDO extends PDO
 	 * @return bool|int|null
 	 */
 	public function exec($statement) {
+		$result = null;
+		$cache = null;
+		$__logger_start = microtime(true);
 		$method = CPDOCache::parseMethod($statement);
 		if (in_array($method, CPDOCache::$actions['archive'])) {
 			$cache = CPDOCache::getcache($statement);
 			if (empty($cache)) {
-				$result = parent::exec($statement);
-				CPDOCache::setcache($statement, $result, 'exec');
-				return $result;
+				$cache = CPDOCache::getcache($statement);
+				if (empty($cache)) {
+					$result = parent::exec($statement);
+					CPDOCache::setcache($statement, $result, 'exec');
+				}
+			} else {
+				$result = $cache;
 			}
-			return $cache;
 		} elseif (in_array($method, CPDOCache::$actions['delete'])) {
 			CPDOCache::deletecache($statement);
 		}
-		return parent::exec($statement);
+		if (is_null($result))
+			$result = parent::exec($statement);
+		$__logger_end = microtime(true);
+		CPDOLogger::addLog($statement, $__logger_end - $__logger_start, !is_null($cache));
+		return $result;
 	}
 
 	/**
@@ -122,6 +134,20 @@ class CPDO extends PDO
 		return $result;
 	}
 
+	/**
+	 * Enable debug logs
+	 */
+	public function enableDebug() {
+		CPDOLogger::$enabled = true;
+	}
+
+	/**
+	 * Disable debug logs
+	 */
+	public function disableDebug() {
+		CPDOLogger::$enabled = false;
+	}
+
 }
 
 /**
@@ -137,22 +163,31 @@ class CPDOStatement extends PDOStatement
 	 * @return bool
 	 */
 	public function execute($input_parameters = null) {
+		$result = null;
+		$cache = null;
+		$__logger_start = microtime(true);
 		$method = CPDOCache::parseMethod($this->queryString);
 		if (in_array($method, CPDOCache::$actions['archive'])) {
 			$cache = CPDOCache::getcache($this->queryString);
 			if (empty($cache)) {
-				$cache = CPDOCache::getcache($this->queryString);
+				$cache = CPDOCache::getcache($this->queryString, json_encode($input_parameters, true));
 				if (empty($cache)) {
-					if (!empty($input_parameters))
-						return parent::execute($input_parameters);
-					return parent::execute();
+					if (empty($input_parameters))
+						$input_parameters = null;
+					$result = parent::execute($input_parameters);
+					CPDOCache::setcache($this->queryString, $result, json_encode($input_parameters, true));
 				}
+			} else {
+				$result = $cache;
 			}
-			return $cache;
 		} elseif (in_array($method, CPDOCache::$actions['delete'])) {
 			CPDOCache::deletecache($this->queryString);
 		}
-		return parent::execute($input_parameters);
+		if (is_null($result))
+			$result = parent::execute($input_parameters);
+		$__logger_end = microtime(true);
+		CPDOLogger::addLog($this->queryString, $__logger_end - $__logger_start, !is_null($cache));
+		return $result;
 	}
 
 	/**
@@ -236,6 +271,41 @@ class CPDOStatement extends PDOStatement
 	}
 }
 
+class CPDOLogger
+{
+	public static $enabled = false;
+	protected static $__count = 0;
+	protected static $__logs = array();
+
+	/**
+	 * Add new log
+	 * @param $query
+	 * @param $time
+	 * @param $cache
+	 */
+	public static function addLog($query, $time, $cache) {
+		if (self::$enabled) {
+			self::$__count++;
+			self::$__logs[$query][] = array('time' => time(), 'execution_time' => $time, 'cached' => $cache);
+		}
+	}
+
+	/**
+	 * Get Logs
+	 * @return array
+	 */
+	public static function getLogs() {
+		return array('count' => self::$__count, 'queries' => self::$__logs);
+	}
+
+	/**
+	 * Clean Logs
+	 */
+	public static function cleanLogs() {
+		self::$__logs = array();
+	}
+}
+
 class CPDOCache
 {
 
@@ -255,8 +325,8 @@ class CPDOCache
 	 * @param $mixed
 	 * @return bool
 	 */
-	public static function populate($cache){
-		if(is_array($cache))
+	public static function populate($cache) {
+		if (is_array($cache))
 			self::$__cache = $cache;
 	}
 
@@ -264,7 +334,7 @@ class CPDOCache
 	 * Retrieve Cache
 	 * @return array
 	 */
-	public static function retrieve(){
+	public static function retrieve() {
 		return self::$__cache;
 	}
 

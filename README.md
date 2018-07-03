@@ -43,8 +43,59 @@ The only one new feature implemented in this class is the DSN autogeneration if 
 
 instead use the constructor.
 
-## (Optional) Persistent cache
-_PS: this usage is not recommended!!!_
+## Debug/Logs
+You can enable/disable the logger using the following methods (default is *disabled*):
+```php
+$db->enableDebug();
+$db->disableDebug();
+```
+
+For retrieve logs use this method:
+```php
+CPDOLogger::getLogs();
+```
+
+For clean logs use this method:
+```php
+CPDOLogger::cleanLogs();
+```
+
+### Example of logs
+```php
+array (
+  'count' => 3,
+  'queries' => 
+  array (
+    'SET NAMES \'utf8\'' => 
+        array (
+          0 => 
+          array (
+            'time' => 1530610903,
+            'execution_time' => 0.000247955322265625,
+            'cached' => false,
+          ),
+          1 => 
+            array (
+              'time' => 1530610903,
+              'execution_time' => 0.000077955322265625,
+              'cached' => false,
+            ),
+        ),
+    'SELECT id FROM _deleted_records_ WHERE table = \'settings\' LIMIT 1' => 
+        array (
+          0 => 
+          array (
+            'time' => 1530610903,
+            'execution_time' => 0.00050687789916992188,
+            'cached' => false,
+          ),
+        ),
+  ),
+)
+```
+
+## (Not recommended) Persistent cache
+*PS: this usage is not recommended!!!*
 
 If you want a persitent you can use the method `CPDOCache::populate` for populate the cache and `CPDOCache::retrieve` for retrieve the cache.
 

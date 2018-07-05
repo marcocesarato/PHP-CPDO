@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.0.22
+ * @version 0.2.1.23
  */
 class CPDO extends PDO
 {
@@ -148,6 +148,87 @@ class CPDO extends PDO
 		CPDOLogger::$enabled = false;
 	}
 
+    /**
+     * Get list of database tables
+     * @return array|bool
+     */
+    public function getTables() {
+        $sql = 'SHOW TABLES';
+        $query = $this->query($sql);
+        return $query->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Backup database tables or just a table
+     * @param string $tables
+     */
+    public function backup($backup_dir, $backup_tables = '*'){
+
+        $tables = array();
+        $data = "\n-- DATABASE BACKUP --\n\n";
+        $data .= "--\n-- Date: " . date("d/m/Y H:i:s", time()) . "\n";
+        $data .= "-- Host: " . self::$database_host . "\n";
+        $data .= "-- Database: `" . self::$database_name . "`";
+        $data .= "\n\n-- --------------------------------------------------------\n\n";
+        if ($backup_tables == '*') {
+            $tables = $this->getTables();
+        } else {
+            $tables = is_array($backup_tables) ? $backup_tables : explode(',', $backup_tables);
+        }
+        foreach ($tables as $table) {
+            $sth = self::$db->prepare('SELECT count(*) FROM ' . $table);
+            $sth->execute();
+            $num_fields = $sth->fetch(PDO::FETCH_NUM);
+            $num_fields = $num_fields[0];
+
+            $result = self::$db->prepare('SELECT * FROM ' . $table);
+            $result->execute();
+
+            $data .= "--\n-- CREATE TABLE `" . $table . "`\n--";
+
+            $data .= "\n\nDROP TABLE `" . $table . "`;";
+
+            $result2 = self::$db->prepare('SHOW CREATE TABLE ' . $table);
+            $result2->execute();
+            $row2 = $result2->fetch(PDO::FETCH_NUM);
+            $row2[1] = preg_replace("/AUTO_INCREMENT=[\w]*./", '', $row2[1]);
+            $row2[1] = str_replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS", $row2[1]);
+            $data .= "\n\n" . $row2[1] . ";\n\n";
+            $data .= "-- --------------------------------------------------------\n\n";
+
+            $data .= "LOCK TABLES `{$table}` WRITE\n\n";
+
+            $data .= "--\n-- INSERT INTO table `" . $table . "`\n--\n\n";
+            for ($i = 0; $i < $num_fields; $i++) {
+                while ($row = $result->fetch(PDO::FETCH_NUM)) {
+                    $data .= 'INSERT INTO ' . $table . ' VALUES(' . implode(',', array_map(array($this, 'escape'), $a)) . ")\n";
+                }
+            }
+            $data .= "UNLOCK TABLES\n\n";
+        }
+        $data .= "\n-- --------------------------------------------------------\n\n\n";
+
+        create_dir($backup_dir);
+        $filename = $backup_dir . '/db-backup' . ((is_array($backup_tables)) ? '-' . (implode(",", $tables)) : '') . '-' . date("dmY", time()) . '-' . time() . '.sql';
+        $f = fopen($filename,"w+");
+        fwrite($f, pack("CCC",0xef,0xbb,0xbf));
+        fwrite($f,$data);
+        fclose($f);
+    }
+
+    /**
+     * Escape variable
+     * @param string $value
+     */
+    protected function escape($value) {
+        if ($value === null) {
+            return 'NULL';
+        }
+        if ((string) intval($value) === $value) {
+            return (int) $value;
+        }
+        return $this->quote($value);
+    }
 }
 
 /**

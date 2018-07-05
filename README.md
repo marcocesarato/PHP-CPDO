@@ -1,6 +1,6 @@
 # CPDO - Cache PDO Query Class
 
-Version: 0.1
+Version: 0.2
 
 This package can retrieve PDO query results from cache variables.
 
@@ -35,16 +35,38 @@ This class prevent to do the same query on the database, retrieving the data fro
 * SQLite
 
 ## Usage
-You can use this class as PDO.
 
-The only one new feature implemented in this class is the DSN autogeneration if you use the method 
+You have to use this class as PDO.
 
-`CPDO::connect($database_type, $database_name, $database_host = null, $database_user = null, $database_pswd = null)` 
+CPDO introduced these new methods:
 
-instead use the constructor.
+### Method `connect`
 
-## Debug/Logs
-You can enable/disable the logger using the following methods (default is *disabled*):
+This feature is a DSN autogeneration and you have to use it instead of the constructor.
+
+#### Usage of `connect`
+
+```php
+$db = CPDO::connect($database_type, $database_name, $database_host = null, $database_user = null, $database_pswd = null);
+```
+
+### Method `getTables`
+
+Return the names of all database tables as `array`
+
+### Method `backup`
+
+You can backup **Data** (At the moment no TRIGGERS, VIEWS and EVENTS _if you need it you can request it to the developer_).
+You can choose if you want the tables you want backup through an `array`.
+
+#### Usage of `backup`
+
+```php
+$db->backup($backup_dir, $backup_tables = '*');
+```
+
+## Debugger
+You can enable/disable the debugger using the following methods (default is *disabled*):
 ```php
 $db->enableDebug();
 $db->disableDebug();

@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.1.23
+ * @version 0.2.1.24
  */
 class CPDO extends PDO
 {
@@ -208,7 +208,6 @@ class CPDO extends PDO
         }
         $data .= "\n-- --------------------------------------------------------\n\n\n";
 
-        create_dir($backup_dir);
         $filename = $backup_dir . '/db-backup' . ((is_array($backup_tables)) ? '-' . (implode(",", $tables)) : '') . '-' . date("dmY", time()) . '-' . time() . '.sql';
         $f = fopen($filename,"w+");
         fwrite($f, pack("CCC",0xef,0xbb,0xbf));

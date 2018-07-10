@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.1.26
+ * @version 0.2.1.27
  */
 class CPDO extends PDO
 {
@@ -352,10 +352,25 @@ class CPDOLogger
 		return array('count' => self::$__count, 'queries' => self::$__logs);
 	}
 	/**
+	 * Get Counter
+	 * @return int
+	 */
+	public static function getCounter(){
+		return self::$__count;
+	}
+
+	/**
+	 * Get Counter
+	 * @return array
+	 */
+	public static function getQueries(){
+		return array_keys(self::$__logs);
+	}
+
+	/**
 	 * Clean Logs
 	 */
-	public static function cleanLogs()
-	{
+	public static function cleanLogs(){
 		self::$__count = 0;
 		self::$__logs = array();
 	}

@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.1.28
+ * @version 0.2.1.29
  */
 class CPDO extends PDO
 {
@@ -75,7 +75,7 @@ class CPDO extends PDO
 		$cache = null;
 		$__logger_start = microtime(true);
 		$method = CPDOCache::parseMethod($statement);
-		if (in_array($method, CPDOCache::getOperationTables('archive'))) {
+		if (in_array($method, CPDOCache::getOperationMethods('archive'))) {
 			$cache = CPDOCache::getcache($statement);
 			if (empty($cache)) {
 				$cache = CPDOCache::getcache($statement);
@@ -86,7 +86,7 @@ class CPDO extends PDO
 			} else {
 				$result = $cache;
 			}
-		} elseif (in_array($method, CPDOCache::getOperationTables('delete'))) {
+		} elseif (in_array($method, CPDOCache::getOperationMethods('delete'))) {
 			CPDOCache::deletecache($statement);
 		}
 		if (is_null($result))
@@ -105,11 +105,11 @@ class CPDO extends PDO
 	 */
 	public function query($statement, $mode = null, $arg3 = null, $ctorargs = null) {
 		$method = CPDOCache::parseMethod($statement);
-		if (in_array($method, CPDOCache::getOperationTables('archive'))) {
+		if (in_array($method, CPDOCache::getOperationMethods('archive'))) {
 			$cache = CPDOCache::getcache($statement);
 			if (!empty($cache))
 				return $cache;
-		} elseif (in_array($method, CPDOCache::getOperationTables('delete'))) {
+		} elseif (in_array($method, CPDOCache::getOperationMethods('delete'))) {
 			CPDOCache::deletecache($statement);
 		}
 		if (!empty($ctorargs)) {
@@ -122,7 +122,7 @@ class CPDO extends PDO
 			$result = parent::query($statement, $mode);
 		else
 			$result = parent::query($statement);
-		if (in_array($method, CPDOCache::getOperationTables('archive')))
+		if (in_array($method, CPDOCache::getOperationMethods('archive')))
 			CPDOCache::setcache($statement, $result, 'query' . $mode);
 		return $result;
 	}
@@ -227,7 +227,7 @@ class CPDOStatement extends PDOStatement
 		$cache = null;
 		$__logger_start = microtime(true);
 		$method = CPDOCache::parseMethod($this->queryString);
-		if (in_array($method, CPDOCache::getOperationTables('archive'))) {
+		if (in_array($method, CPDOCache::getOperationMethods('archive'))) {
 			$cache = CPDOCache::getcache($this->queryString);
 			if (empty($cache)) {
 				$cache = CPDOCache::getcache($this->queryString, json_encode($input_parameters, true));
@@ -240,7 +240,7 @@ class CPDOStatement extends PDOStatement
 			} else {
 				$result = $cache;
 			}
-		} elseif (in_array($method, CPDOCache::getOperationTables('delete'))) {
+		} elseif (in_array($method, CPDOCache::getOperationMethods('delete'))) {
 			CPDOCache::deletecache($this->queryString);
 		}
 		if (is_null($result))
@@ -457,7 +457,7 @@ class CPDOCache
 		self::$__exclude = array_unique(self::$__exclude);
 	}
 
-	public static function getOperationTables($operation) {
+	public static function getOperationMethods($operation) {
 		return self::$__operations[$operation];
 	}
 

@@ -7,20 +7,20 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.1.27
+ * @version 0.2.1.28
  */
 class CPDO extends PDO
 {
 	/**
 	 * CPDO constructor.
 	 */
-	function __construct($dsn, $username = "", $password = "", $driver_options = array())
-	{
+	function __construct($dsn, $username = "", $password = "", $driver_options = array()) {
 		parent::__construct($dsn, $username, $password, $driver_options);
 		parent::setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 		parent::setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', $this));
 		$this->disableDebug();
 	}
+
 	/**
 	 * Autogeneration of the DSN
 	 * @param $database_type
@@ -30,8 +30,7 @@ class CPDO extends PDO
 	 * @param null $database_pswd
 	 * @return bool|static
 	 */
-	public static function connect($database_type, $database_name = null, $database_host = null, $database_user = null, $database_pswd = null)
-	{
+	public static function connect($database_type, $database_name = null, $database_host = null, $database_user = null, $database_pswd = null) {
 		if (empty($database_host) && in_array($database_type, array('mysql', 'pgsql', 'mssql', 'ibm', 'firebird', '4D', 'interbase', 'informix'))) {
 			trigger_error("CDPO: Database host is empty", E_USER_WARNING);
 		}
@@ -66,17 +65,17 @@ class CPDO extends PDO
 		trigger_error("CDPO: Database type `" . htmlentities($database_type) . "` is not supported yet", E_USER_ERROR);
 		return false;
 	}
+
 	/**
 	 * @param string $statement
 	 * @return bool|int|null
 	 */
-	public function exec($statement)
-	{
+	public function exec($statement) {
 		$result = null;
 		$cache = null;
 		$__logger_start = microtime(true);
 		$method = CPDOCache::parseMethod($statement);
-		if (in_array($method, CPDOCache::$actions['archive'])) {
+		if (in_array($method, CPDOCache::getOperationTables('archive'))) {
 			$cache = CPDOCache::getcache($statement);
 			if (empty($cache)) {
 				$cache = CPDOCache::getcache($statement);
@@ -87,7 +86,7 @@ class CPDO extends PDO
 			} else {
 				$result = $cache;
 			}
-		} elseif (in_array($method, CPDOCache::$actions['delete'])) {
+		} elseif (in_array($method, CPDOCache::getOperationTables('delete'))) {
 			CPDOCache::deletecache($statement);
 		}
 		if (is_null($result))
@@ -96,6 +95,7 @@ class CPDO extends PDO
 		CPDOLogger::addLog($statement, $__logger_end - $__logger_start, !is_null($cache));
 		return $result;
 	}
+
 	/**
 	 * @param string $statement
 	 * @param int $mode
@@ -103,14 +103,13 @@ class CPDO extends PDO
 	 * @param array $ctorargs
 	 * @return array|bool|null|PDOStatement
 	 */
-	public function query($statement, $mode = null, $arg3 = null, $ctorargs = null)
-	{
+	public function query($statement, $mode = null, $arg3 = null, $ctorargs = null) {
 		$method = CPDOCache::parseMethod($statement);
-		if (in_array($method, CPDOCache::$actions['archive'])) {
+		if (in_array($method, CPDOCache::getOperationTables('archive'))) {
 			$cache = CPDOCache::getcache($statement);
 			if (!empty($cache))
 				return $cache;
-		} elseif (in_array($method, CPDOCache::$actions['delete'])) {
+		} elseif (in_array($method, CPDOCache::getOperationTables('delete'))) {
 			CPDOCache::deletecache($statement);
 		}
 		if (!empty($ctorargs)) {
@@ -123,40 +122,40 @@ class CPDO extends PDO
 			$result = parent::query($statement, $mode);
 		else
 			$result = parent::query($statement);
-		if (in_array($method, CPDOCache::$actions['archive']))
+		if (in_array($method, CPDOCache::getOperationTables('archive')))
 			CPDOCache::setcache($statement, $result, 'query' . $mode);
 		return $result;
 	}
+
 	/**
 	 * Enable debug logs
 	 */
-	public function enableDebug()
-	{
+	public function enableDebug() {
 		CPDOLogger::$enabled = true;
 	}
+
 	/**
 	 * Disable debug logs
 	 */
-	public function disableDebug()
-	{
+	public function disableDebug() {
 		CPDOLogger::$enabled = false;
 	}
+
 	/**
 	 * Get list of database tables
 	 * @return array|bool
 	 */
-	public function getTables()
-	{
+	public function getTables() {
 		$sql = 'SHOW TABLES';
 		$query = $this->query($sql);
 		return $query->fetchAll(PDO::FETCH_COLUMN);
 	}
+
 	/**
 	 * Backup database tables or just a table
 	 * @param string $tables
 	 */
-	public function backup($backup_dir, $backup_tables = '*')
-	{
+	public function backup($backup_dir, $backup_tables = '*') {
 		$tables = array();
 		$data = "\n-- DATABASE BACKUP --\n\n";
 		$data .= "--\n-- Date: " . date("d/m/Y H:i:s", time()) . "\n";
@@ -196,12 +195,12 @@ class CPDO extends PDO
 		fwrite($f, $data);
 		fclose($f);
 	}
+
 	/**
 	 * Escape variable
 	 * @param string $value
 	 */
-	protected function escape($value)
-	{
+	protected function escape($value) {
 		if ($value === null) {
 			return 'NULL';
 		}
@@ -211,23 +210,24 @@ class CPDO extends PDO
 		return $this->quote($value);
 	}
 }
+
 /**
  * Class CPDOStatement
  */
 class CPDOStatement extends PDOStatement
 {
 	public $queryString;
+
 	/**
 	 * @param null $input_parameters
 	 * @return bool
 	 */
-	public function execute($input_parameters = null)
-	{
+	public function execute($input_parameters = null) {
 		$result = null;
 		$cache = null;
 		$__logger_start = microtime(true);
 		$method = CPDOCache::parseMethod($this->queryString);
-		if (in_array($method, CPDOCache::$actions['archive'])) {
+		if (in_array($method, CPDOCache::getOperationTables('archive'))) {
 			$cache = CPDOCache::getcache($this->queryString);
 			if (empty($cache)) {
 				$cache = CPDOCache::getcache($this->queryString, json_encode($input_parameters, true));
@@ -240,7 +240,7 @@ class CPDOStatement extends PDOStatement
 			} else {
 				$result = $cache;
 			}
-		} elseif (in_array($method, CPDOCache::$actions['delete'])) {
+		} elseif (in_array($method, CPDOCache::getOperationTables('delete'))) {
 			CPDOCache::deletecache($this->queryString);
 		}
 		if (is_null($result))
@@ -249,14 +249,14 @@ class CPDOStatement extends PDOStatement
 		CPDOLogger::addLog($this->queryString, $__logger_end - $__logger_start, !is_null($cache));
 		return $result;
 	}
+
 	/**
 	 * @param null $fetch_style
 	 * @param int $cursor_orientation
 	 * @param int $cursor_offset
 	 * @return mixed|null
 	 */
-	public function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null)
-	{
+	public function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null) {
 		$cache = CPDOCache::getcache($this->queryString, $fetch_style);
 		if (empty($cache)) {
 			if (!empty($cursor_offset)) {
@@ -271,14 +271,14 @@ class CPDOStatement extends PDOStatement
 		}
 		return $cache;
 	}
+
 	/**
 	 * @param null $fetch_style
 	 * @param null $fetch_argument
 	 * @param array $ctor_args
 	 * @return array|null
 	 */
-	public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null)
-	{
+	public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null) {
 		$cache = CPDOCache::getcache($this->queryString, $fetch_style);
 		if (empty($cache)) {
 			if (!empty($ctor_args))
@@ -292,13 +292,13 @@ class CPDOStatement extends PDOStatement
 		}
 		return $cache;
 	}
+
 	/**
 	 * @param string $class_name
 	 * @param array $ctor_args
 	 * @return mixed|null
 	 */
-	public function fetchObject($class_name = "stdClass", $ctor_args = null)
-	{
+	public function fetchObject($class_name = "stdClass", $ctor_args = null) {
 		$cache = CPDOCache::getcache($this->queryString, $class_name);
 		if (empty($cache)) {
 			if (!empty($ctor_args))
@@ -310,12 +310,12 @@ class CPDOStatement extends PDOStatement
 		}
 		return $cache;
 	}
+
 	/**
 	 * @param int $column_number
 	 * @return mixed|null
 	 */
-	public function fetchColumn($column_number = 0)
-	{
+	public function fetchColumn($column_number = 0) {
 		$cache = CPDOCache::getcache($this->queryString, $column_number);
 		if (empty($cache)) {
 			$result = parent::fetchColumn($column_number);
@@ -325,37 +325,39 @@ class CPDOStatement extends PDOStatement
 		return $cache;
 	}
 }
+
 class CPDOLogger
 {
 	public static $enabled = false;
 	protected static $__count = 0;
 	protected static $__logs = array();
+
 	/**
 	 * Add new log
 	 * @param $query
 	 * @param $time
 	 * @param $cache
 	 */
-	public static function addLog($query, $time, $cache)
-	{
+	public static function addLog($query, $time, $cache) {
 		if (self::$enabled) {
 			self::$__count++;
 			self::$__logs[$query][] = array('time' => time(), 'execution_time' => $time, 'cached' => $cache);
 		}
 	}
+
 	/**
 	 * Get Logs
 	 * @return array
 	 */
-	public static function getLogs()
-	{
+	public static function getLogs() {
 		return array('count' => self::$__count, 'queries' => self::$__logs);
 	}
+
 	/**
 	 * Get Counter
 	 * @return int
 	 */
-	public static function getCounter(){
+	public static function getCounter() {
 		return self::$__count;
 	}
 
@@ -363,61 +365,116 @@ class CPDOLogger
 	 * Get Counter
 	 * @return array
 	 */
-	public static function getQueries(){
+	public static function getQueries() {
 		return array_keys(self::$__logs);
 	}
 
 	/**
 	 * Clean Logs
 	 */
-	public static function cleanLogs(){
+	public static function cleanLogs() {
 		self::$__count = 0;
 		self::$__logs = array();
 	}
 }
+
 class CPDOCache
 {
-	public static $actions = array(
+	protected static $__operations = array(
 		'archive' => array('SELECT', 'SHOW', 'DESCRIBE'),
 		'delete' => array('INSERT', 'UPDATE', 'DELETE', 'DROP', 'TRUNCATE', 'ALTER')
 	);
-	public static $exclude = array();
+	protected static $__exclude = array();
+	protected static $__enabled = true;
 	protected static $__cache = array();
 	// From Light SQL Parser Class
 	protected static $__parser_method = array();
 	protected static $__parser_tables = array();
+
+	/**
+	 * Enable cache
+	 */
+	public static function enable() {
+		self::$__enabled = true;
+	}
+
+	/**
+	 * Disable cache
+	 */
+	public static function disable() {
+		self::$__enabled = false;
+	}
+
+	/**
+	 * Return if cahce is enabled
+	 * @return bool
+	 */
+	public static function isEnabled() {
+		return self::$__enabled;
+	}
+
 	/**
 	 * Populate cache
 	 * @param $mixed
 	 * @return bool
 	 */
-	public static function populate($cache)
-	{
+	public static function populate($cache) {
 		if (is_array($cache))
 			self::$__cache = $cache;
 	}
+
 	/**
 	 * Retrieve Cache
 	 * @return array
 	 */
-	public static function retrieve()
-	{
+	public static function retrieve() {
 		return self::$__cache;
 	}
+
+	/**
+	 * Get all excluded tables
+	 * @return array
+	 */
+	public static function getExceptions() {
+		return self::$__exclude;
+	}
+
+	/**
+	 * Add exception
+	 * @param $exclude
+	 */
+	public static function addException($exclude) {
+		self::$__exclude[] = $exclude;
+		self::$__exclude = array_unique(self::$__exclude);
+	}
+
+	/**
+	 * Add exceptions
+	 * @param $exclude
+	 */
+	public static function addExceptions($exclude) {
+		self::$__exclude = array_merge(self::$__exclude, $exclude);
+		self::$__exclude = array_unique(self::$__exclude);
+	}
+
+	public static function getOperationTables($operation) {
+		return self::$__operations[$operation];
+	}
+
 	/**
 	 * Set Cache
 	 * @param $query
 	 * @param $value
 	 * @param null $arg
 	 */
-	public static function setcache($query, $value, $arg = null)
-	{
+	public static function setcache($query, $value, $arg = null) {
+		if (!self:: isEnabled()) return null;
 		$e = new \Exception();
 		$trace = $e->getTrace();
 		$function = $trace[1]['function'];
 		$table = self::keycache($query);
 		$tables = self::parseTables($query);
-		foreach (self::$exclude as $key) {
+		foreach (self::getExceptions() as $key) {
 			foreach ($tables as $table) {
 				if (strpos($key, $table) !== false) {
 					return;
@@ -426,14 +483,15 @@ class CPDOCache
 		}
 		self::$__cache[$table][$query][$function][$arg] = $value;
 	}
+
 	/**
 	 * Get Cache
 	 * @param $query
 	 * @param null $arg
 	 * @return null
 	 */
-	public static function getcache($query, $arg = null)
-	{
+	public static function getcache($query, $arg = null) {
+		if (!self:: isEnabled()) return null;
 		$e = new \Exception();
 		$trace = $e->getTrace();
 		$function = $trace[1]['function'];
@@ -442,12 +500,13 @@ class CPDOCache
 			return self::$__cache[$table][$query][$function][$arg];
 		return null;
 	}
+
 	/**
 	 * Delete Cache
 	 * @param $query
 	 */
-	public static function deletecache($query)
-	{
+	public static function deletecache($query) {
+		if (!self:: isEnabled()) return null;
 		$tables = self::parseTables($query);
 		foreach (array_keys(self::$__cache) as $key) {
 			foreach ($tables as $table) {
@@ -457,16 +516,17 @@ class CPDOCache
 			}
 		}
 	}
+
 	/**
 	 * Get key cache
 	 * @param $query
 	 * @return string
 	 */
-	protected static function keycache($query)
-	{
+	protected static function keycache($query) {
 		$tables = self::parseTables($query);
 		return implode('/', $tables);
 	}
+
 	/**
 	 * Get SQL Query method
 	 * @package Light-SQL-Parser-Class
@@ -475,8 +535,7 @@ class CPDOCache
 	 * @param $query
 	 * @return mixed|string
 	 */
-	public static function parseMethod($query)
-	{
+	public static function parseMethod($query) {
 		if (!empty(self::$__parser_method[$query]))
 			return self::$__parser_method[$query];
 		$methods = array('SELECT', 'INSERT', 'UPDATE', 'DELETE', 'RENAME', 'SHOW', 'SET', 'DROP', 'CREATE INDEX', 'CREATE TABLE', 'EXPLAIN', 'DESCRIBE', 'TRUNCATE', 'ALTER');
@@ -492,6 +551,7 @@ class CPDOCache
 		}
 		return '';
 	}
+
 	/**
 	 * Get SQL Query Tables
 	 * @package Light-SQL-Parser-Class
@@ -500,8 +560,7 @@ class CPDOCache
 	 * @param $_query
 	 * @return array|mixed
 	 */
-	public static function parseTables($_query)
-	{
+	public static function parseTables($_query) {
 		$connectors = "OR|AND|ON|LIMIT|WHERE|JOIN|GROUP|ORDER|OPTION|LEFT|INNER|RIGHT|OUTER|SET|HAVING|VALUES|SELECT|\(|\)";
 		if (!empty(self::$__parser_tables[$_query]))
 			return self::$__parser_tables[$_query];
@@ -530,6 +589,7 @@ class CPDOCache
 		self::$__parser_tables[$_query] = $tables;
 		return $tables;
 	}
+
 	/**
 	 * Get SQL Query method
 	 * @package Light-SQL-Parser-Class
@@ -539,8 +599,7 @@ class CPDOCache
 	 * @param $query
 	 * @return array|null|string|string[]
 	 */
-	public static function parseQueries($query)
-	{
+	public static function parseQueries($query) {
 		$queries = preg_replace('#\/\*[\s\S]*?\*\/#', '', $query);
 		$queries = preg_replace('#;(?:(?<=["\'];)|(?=["\']))#', '', $queries);
 		$queries = preg_replace('#[\s]*UNION([\s]+ALL)?[\s]*#', ';', $queries);

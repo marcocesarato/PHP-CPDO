@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.1.29
+ * @version 0.2.1.30
  */
 class CPDO extends PDO
 {
@@ -18,7 +18,6 @@ class CPDO extends PDO
 		parent::__construct($dsn, $username, $password, $driver_options);
 		parent::setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 		parent::setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', $this));
-		$this->disableDebug();
 	}
 
 	/**
@@ -75,7 +74,7 @@ class CPDO extends PDO
 		$cache = null;
 		$__logger_start = microtime(true);
 		$method = CPDOCache::parseMethod($statement);
-		if (in_array($method, CPDOCache::getOperationMethods('archive'))) {
+		if (in_array($method, CPDOCache::getOperationMethods('read'))) {
 			$cache = CPDOCache::getcache($statement);
 			if (empty($cache)) {
 				$cache = CPDOCache::getcache($statement);
@@ -86,7 +85,7 @@ class CPDO extends PDO
 			} else {
 				$result = $cache;
 			}
-		} elseif (in_array($method, CPDOCache::getOperationMethods('delete'))) {
+		} elseif (in_array($method, CPDOCache::getOperationMethods('write'))) {
 			CPDOCache::deletecache($statement);
 		}
 		if (is_null($result))
@@ -105,11 +104,11 @@ class CPDO extends PDO
 	 */
 	public function query($statement, $mode = null, $arg3 = null, $ctorargs = null) {
 		$method = CPDOCache::parseMethod($statement);
-		if (in_array($method, CPDOCache::getOperationMethods('archive'))) {
+		if (in_array($method, CPDOCache::getOperationMethods('read'))) {
 			$cache = CPDOCache::getcache($statement);
 			if (!empty($cache))
 				return $cache;
-		} elseif (in_array($method, CPDOCache::getOperationMethods('delete'))) {
+		} elseif (in_array($method, CPDOCache::getOperationMethods('write'))) {
 			CPDOCache::deletecache($statement);
 		}
 		if (!empty($ctorargs)) {
@@ -122,23 +121,37 @@ class CPDO extends PDO
 			$result = parent::query($statement, $mode);
 		else
 			$result = parent::query($statement);
-		if (in_array($method, CPDOCache::getOperationMethods('archive')))
+		if (in_array($method, CPDOCache::getOperationMethods('read')))
 			CPDOCache::setcache($statement, $result, 'query' . $mode);
 		return $result;
 	}
 
 	/**
-	 * Enable debug logs
+	 * Enable debug
 	 */
 	public function enableDebug() {
-		CPDOLogger::$enabled = true;
+		CPDOLogger::enable();
 	}
 
 	/**
-	 * Disable debug logs
+	 * Disable debug
 	 */
 	public function disableDebug() {
-		CPDOLogger::$enabled = false;
+		CPDOLogger::disable();
+	}
+
+	/**
+	 * Enable cache
+	 */
+	public function enableCache() {
+		CPDOCache::enable();
+	}
+
+	/**
+	 * Disable cache
+	 */
+	public function disableCache() {
+		CPDOCache::disable();
 	}
 
 	/**
@@ -227,7 +240,7 @@ class CPDOStatement extends PDOStatement
 		$cache = null;
 		$__logger_start = microtime(true);
 		$method = CPDOCache::parseMethod($this->queryString);
-		if (in_array($method, CPDOCache::getOperationMethods('archive'))) {
+		if (in_array($method, CPDOCache::getOperationMethods('read'))) {
 			$cache = CPDOCache::getcache($this->queryString);
 			if (empty($cache)) {
 				$cache = CPDOCache::getcache($this->queryString, json_encode($input_parameters, true));
@@ -240,7 +253,7 @@ class CPDOStatement extends PDOStatement
 			} else {
 				$result = $cache;
 			}
-		} elseif (in_array($method, CPDOCache::getOperationMethods('delete'))) {
+		} elseif (in_array($method, CPDOCache::getOperationMethods('write'))) {
 			CPDOCache::deletecache($this->queryString);
 		}
 		if (is_null($result))
@@ -328,9 +341,31 @@ class CPDOStatement extends PDOStatement
 
 class CPDOLogger
 {
-	public static $enabled = false;
+	protected static $__enabled = false;
 	protected static $__count = 0;
 	protected static $__logs = array();
+
+	/**
+	 * Enable logs
+	 */
+	public static function enable() {
+		self::$__enabled = true;
+	}
+
+	/**
+	 * Disable logs
+	 */
+	public static function disable() {
+		self::$__enabled = false;
+	}
+
+	/**
+	 * Return if logs are enabled
+	 * @return bool
+	 */
+	public static function isEnabled() {
+		return self::$__enabled;
+	}
 
 	/**
 	 * Add new log
@@ -381,8 +416,8 @@ class CPDOLogger
 class CPDOCache
 {
 	protected static $__operations = array(
-		'archive' => array('SELECT', 'SHOW', 'DESCRIBE'),
-		'delete' => array('INSERT', 'UPDATE', 'DELETE', 'DROP', 'TRUNCATE', 'ALTER')
+		'read' => array('SELECT', 'SHOW', 'DESCRIBE'),
+		'write' => array('INSERT', 'UPDATE', 'DELETE', 'DROP', 'TRUNCATE', 'ALTER')
 	);
 	protected static $__exclude = array();
 	protected static $__enabled = true;
@@ -406,7 +441,7 @@ class CPDOCache
 	}
 
 	/**
-	 * Return if cahce is enabled
+	 * Return if cache is enabled
 	 * @return bool
 	 */
 	public static function isEnabled() {
@@ -457,6 +492,11 @@ class CPDOCache
 		self::$__exclude = array_unique(self::$__exclude);
 	}
 
+	/**
+	 * Get query methods for operation type
+	 * @param $operation
+	 * @return mixed
+	 */
 	public static function getOperationMethods($operation) {
 		return self::$__operations[$operation];
 	}

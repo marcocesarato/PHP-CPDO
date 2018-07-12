@@ -65,24 +65,47 @@ You can choose if you want the tables you want backup through an `array`.
 $db->backup($backup_dir, $backup_tables = '*');
 ```
 
+## Cache 
+You can enable/disable the cache using the following methods (default is *disabled*):
+```php
+$db->enableCache();
+$db->disableCache();
+```
+or
+```php
+CPDOCache::enable();
+CPDOCache::disable();
+```
+
+### Methods available:
+- `void CPDOCache::enable()`  ENABLE Cache
+- `void CPDOCache::disable()` DISABLE Cache
+- `void CPDOCache::populate(array $cache)` Populate cache (see below persistent cache)
+- `array CPDOCache::retrieve()` Retrieve cache (see below persistent cache)
+- `void CPDOCache::addException(string $table_name)` Add not cacheable table
+- `void CPDOCache::addExceptions(array $tables_name)` Add not cacheable tables
+
 ## Debugger
 You can enable/disable the debugger using the following methods (default is *disabled*):
 ```php
 $db->enableDebug();
 $db->disableDebug();
 ```
-
-For retrieve logs use this method:
+or
 ```php
-CPDOLogger::getLogs();
+CPDOLogger::enable();
+CPDOLogger::disable();
 ```
 
-For clean logs use this method:
-```php
-CPDOLogger::cleanLogs();
-```
+### Methods available:
+- `void CPDOLogger::enable()`  ENABLE Cache
+- `void CPDOLogger::disable()` DISABLE Cache
+- `array CPDOLogger::getLogs();` Get complete logs (with time of execution and if cache used)
+- `array CPDOLogger::getQueries()` Get all queries requested
+- `int CPDOLogger::getCounter()` Get the counter of queries requested
+- `void CPDOLogger::cleanLogs();` Clean Logs
 
-### Example of logs
+### Example of complete logs `getLogs()`
 ```php
 array (
   'count' => 3,
@@ -121,7 +144,7 @@ array (
 
 If you want a persitent you can use the method `CPDOCache::populate` for populate the cache and `CPDOCache::retrieve` for retrieve the cache.
 
-Thanks this methods you could implement a persistent cache system saving the data encoded (with json or serialization) and after restore the cache.
+Thanks these methods you could implement a persistent cache system saving the data encoded (with json or serialization) and after restore the cache.
 
 Pro:
 - Less database stress

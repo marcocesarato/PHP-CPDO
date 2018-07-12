@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2018
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.1.30
+ * @version 0.2.1.31
  */
 class CPDO extends PDO
 {
@@ -374,7 +374,7 @@ class CPDOLogger
 	 * @param $cache
 	 */
 	public static function addLog($query, $time, $cache) {
-		if (self::$enabled) {
+		if (self::isEnabled()) {
 			self::$__count++;
 			self::$__logs[$query][] = array('time' => time(), 'execution_time' => $time, 'cached' => $cache);
 		}

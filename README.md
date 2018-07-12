@@ -1,6 +1,10 @@
 # CPDO - Cache PDO Query Class
 
-Version: 0.2
+Version: beta 2
+
+**Github:** https://github.com/marcocesarato/CPDO 
+
+## Description
 
 This package can retrieve PDO query results from cache variables.
 
@@ -66,15 +70,15 @@ $db->backup($backup_dir, $backup_tables = '*');
 ```
 
 ## Cache 
-You can enable/disable the cache using the following methods (default is *disabled*):
+You can disable/enable the cache using the following methods (default is *disabled*):
 ```php
-$db->enableCache();
 $db->disableCache();
+$db->enableCache();
 ```
 or
 ```php
-CPDOCache::enable();
 CPDOCache::disable();
+CPDOCache::enable();
 ```
 
 ### Methods available:
@@ -86,7 +90,7 @@ CPDOCache::disable();
 - `void CPDOCache::addExceptions(array $tables_name)` Add not cacheable tables
 
 ## Debugger
-You can enable/disable the debugger using the following methods (default is *disabled*):
+You can enable/disable the debugger using the following methods (default is *enabled*):
 ```php
 $db->enableDebug();
 $db->disableDebug();

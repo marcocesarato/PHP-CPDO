@@ -1,6 +1,6 @@
 # CPDO - Cache PDO Query Class
 
-**Version:** 0.2.1.34 beta
+**Version:** 0.2.1.35 beta
 
 **Github:** https://github.com/marcocesarato/CPDO 
 
@@ -188,7 +188,7 @@ unset($cache);
 
 ### CPDO
 
-| Metodo       | Paramentri                                         | Descrizione                            |
+| Methods      | Parameters                                         | Description                            |
 | ------------ | -------------------------------------------------- | -------------------------------------- |
 | __construct  |                                                    | CPDO constructor                       |
 | connect      | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
@@ -205,7 +205,7 @@ unset($cache);
 
 ### CPDOStatement
 
-| Metodo       | Paramentri                                         | Descrizione                            |
+| Methods      | Parameters                                         | Description                            |
 | ------------ | -------------------------------------------------- | -------------------------------------- |
 | __construct  |                                                    | CPDO constructor                       |
 | connect      | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
@@ -227,7 +227,7 @@ unset($cache);
 
 ### CPDOLogger
 
-| Metodo       | Paramentri                                         | Descrizione                            |
+| Methods      | Parameters                                         | Description                            |
 | ------------ | -------------------------------------------------- | -------------------------------------- |
 | __construct  |                                                    | CPDO constructor                       |
 | connect      | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
@@ -257,7 +257,7 @@ unset($cache);
 
 ### CPDOCache
 
-| Metodo              | Paramentri                                         | Descrizione                            |
+| Methods             | Parameters                                         | Description                            |
 | ------------------- | -------------------------------------------------- | -------------------------------------- |
 | __construct         |                                                    | CPDO constructor                       |
 | connect             | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
@@ -299,4 +299,6 @@ unset($cache);
 | parseMethod         | 	  package Light-SQL-Parser-Class<br>	  link https:github.commarcocesaratoPHP-Light-SQL-Parser-Class<br>	 <br>	  param $query<br>	  return mixed\|string | Get SQL Query method                   |
 | parseTables         | 	  package Light-SQL-Parser-Class<br>	  link https:github.commarcocesaratoPHP-Light-SQL-Parser-Class<br>	 <br>	  param $_query<br>	  return array\|mixed | Get SQL Query Tables                   |
 | parseQueries        | 	  package Light-SQL-Parser-Class<br>	  link https:github.commarcocesaratoPHP-Light-SQL-Parser-Class<br>	 <br>	  Get all queries<br>	  param $query<br>	  return array\|null\|string\|string[] | Get SQL Query method                   |
+
+
 

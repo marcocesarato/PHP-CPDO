@@ -1,6 +1,6 @@
 # CPDO - Cache PDO Query Class
 
-**Version:** 0.2.1.33 beta
+**Version:** 0.2.1.34 beta
 
 **Github:** https://github.com/marcocesarato/CPDO 
 
@@ -181,3 +181,122 @@ $cache = json_encode($cache); // Or serialize (slower)
 file_get_contents($database_cache_path, $cache);
 unset($cache);
 ```
+
+## Methods
+
+
+
+### CPDO
+
+| Metodo       | Paramentri                                         | Descrizione                            |
+| ------------ | -------------------------------------------------- | -------------------------------------- |
+| __construct  |                                                    | CPDO constructor                       |
+| connect      | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
+| exec         | param string $statement<br>	  return bool\|int\|null |                                        |
+| query        | param string $statement<br>	  param int $mode<br>	  param null $arg3<br>	  param array $ctorargs<br>	  return array\|bool\|null\|PDOStatement |                                        |
+| enableDebug  |                                                    | Enable debug                           |
+| disableDebug |                                                    | Disable debug                          |
+| enableCache  |                                                    | Enable cache                           |
+| disableCache |                                                    | Disable cache                          |
+| getTables    | 	  return array\|bool                              | Get list of database tables            |
+| backup       | 	  param string $tables                            | Backup database tables or just a table |
+| escape       | 	  param string $value                             | Escape variable                        |
+
+
+### CPDOStatement
+
+| Metodo       | Paramentri                                         | Descrizione                            |
+| ------------ | -------------------------------------------------- | -------------------------------------- |
+| __construct  |                                                    | CPDO constructor                       |
+| connect      | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
+| exec         | param string $statement<br>	  return bool\|int\|null |                                        |
+| query        | param string $statement<br>	  param int $mode<br>	  param null $arg3<br>	  param array $ctorargs<br>	  return array\|bool\|null\|PDOStatement |                                        |
+| enableDebug  |                                                    | Enable debug                           |
+| disableDebug |                                                    | Disable debug                          |
+| enableCache  |                                                    | Enable cache                           |
+| disableCache |                                                    | Disable cache                          |
+| getTables    | 	  return array\|bool                              | Get list of database tables            |
+| backup       | 	  param string $tables                            | Backup database tables or just a table |
+| escape       | 	  param string $value                             | Escape variable                        |
+| execute      | param null $input_parameters<br>	  return bool     |                                        |
+| fetch        | param null $fetch_style<br>	  param int $cursor_orientation<br>	  param int $cursor_offset<br>	  return mixed\|null |                                        |
+| fetchAll     | param null $fetch_style<br>	  param null $fetch_argument<br>	  param array $ctor_args<br>	  return array\|null |                                        |
+| fetchObject  | param string $class_name<br>	  param array $ctor_args<br>	  return mixed\|null |                                        |
+| fetchColumn  | param int $column_number<br>	  return mixed\|null  |                                        |
+
+
+### CPDOLogger
+
+| Metodo       | Paramentri                                         | Descrizione                            |
+| ------------ | -------------------------------------------------- | -------------------------------------- |
+| __construct  |                                                    | CPDO constructor                       |
+| connect      | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
+| exec         | param string $statement<br>	  return bool\|int\|null |                                        |
+| query        | param string $statement<br>	  param int $mode<br>	  param null $arg3<br>	  param array $ctorargs<br>	  return array\|bool\|null\|PDOStatement |                                        |
+| enableDebug  |                                                    | Enable debug                           |
+| disableDebug |                                                    | Disable debug                          |
+| enableCache  |                                                    | Enable cache                           |
+| disableCache |                                                    | Disable cache                          |
+| getTables    | 	  return array\|bool                              | Get list of database tables            |
+| backup       | 	  param string $tables                            | Backup database tables or just a table |
+| escape       | 	  param string $value                             | Escape variable                        |
+| execute      | param null $input_parameters<br>	  return bool     |                                        |
+| fetch        | param null $fetch_style<br>	  param int $cursor_orientation<br>	  param int $cursor_offset<br>	  return mixed\|null |                                        |
+| fetchAll     | param null $fetch_style<br>	  param null $fetch_argument<br>	  param array $ctor_args<br>	  return array\|null |                                        |
+| fetchObject  | param string $class_name<br>	  param array $ctor_args<br>	  return mixed\|null |                                        |
+| fetchColumn  | param int $column_number<br>	  return mixed\|null  |                                        |
+| enable       |                                                    | Enable logs                            |
+| disable      |                                                    | Disable logs                           |
+| isEnabled    | 	  return bool                                     | Return if logs are enabled             |
+| addLog       | 	  param $query<br>	  param $time<br>	  param $cache | Add new log                            |
+| getLogs      | 	  return array                                    | Get Logs                               |
+| getCounter   | 	  return int                                      | Get Counter                            |
+| getQueries   | 	  return array                                    | Get Counter                            |
+| cleanLogs    |                                                    | Clean Logs                             |
+
+
+### CPDOCache
+
+| Metodo              | Paramentri                                         | Descrizione                            |
+| ------------------- | -------------------------------------------------- | -------------------------------------- |
+| __construct         |                                                    | CPDO constructor                       |
+| connect             | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
+| exec                | param string $statement<br>	  return bool\|int\|null |                                        |
+| query               | param string $statement<br>	  param int $mode<br>	  param null $arg3<br>	  param array $ctorargs<br>	  return array\|bool\|null\|PDOStatement |                                        |
+| enableDebug         |                                                    | Enable debug                           |
+| disableDebug        |                                                    | Disable debug                          |
+| enableCache         |                                                    | Enable cache                           |
+| disableCache        |                                                    | Disable cache                          |
+| getTables           | 	  return array\|bool                              | Get list of database tables            |
+| backup              | 	  param string $tables                            | Backup database tables or just a table |
+| escape              | 	  param string $value                             | Escape variable                        |
+| execute             | param null $input_parameters<br>	  return bool     |                                        |
+| fetch               | param null $fetch_style<br>	  param int $cursor_orientation<br>	  param int $cursor_offset<br>	  return mixed\|null |                                        |
+| fetchAll            | param null $fetch_style<br>	  param null $fetch_argument<br>	  param array $ctor_args<br>	  return array\|null |                                        |
+| fetchObject         | param string $class_name<br>	  param array $ctor_args<br>	  return mixed\|null |                                        |
+| fetchColumn         | param int $column_number<br>	  return mixed\|null  |                                        |
+| enable              |                                                    | Enable logs                            |
+| disable             |                                                    | Disable logs                           |
+| isEnabled           | 	  return bool                                     | Return if logs are enabled             |
+| addLog              | 	  param $query<br>	  param $time<br>	  param $cache | Add new log                            |
+| getLogs             | 	  return array                                    | Get Logs                               |
+| getCounter          | 	  return int                                      | Get Counter                            |
+| getQueries          | 	  return array                                    | Get Counter                            |
+| cleanLogs           |                                                    | Clean Logs                             |
+| enable              |                                                    | Enable cache                           |
+| disable             |                                                    | Disable cache                          |
+| isEnabled           | 	  return bool                                     | Return if cache is enabled             |
+| populate            | 	  param $mixed<br>	  return bool                  | Populate cache                         |
+| retrieve            | 	  return array                                    | Retrieve Cache                         |
+| getExceptions       | 	  return array                                    | Get all excluded tables                |
+| addException        | 	  param $exclude                                  | Add exception                          |
+| addExceptions       | 	  param $exclude                                  | Add exceptions                         |
+| getOperationMethods | 	  param $operation<br>	  return mixed             | Get query methods for operation type   |
+| setcache            | 	  param $query<br>	  param $value<br>	  param null $arg | Set Cache                              |
+| getcache            | 	  param $query<br>	  param null $arg<br>	  return null | Get Cache                              |
+| deletecache         | 	  param $query                                    | Delete Cache                           |
+| keycache            | 	  param $query<br>	  return string                | Get key cache                          |
+| parseMethod         | 	  package Light-SQL-Parser-Class<br>	  link https:github.commarcocesaratoPHP-Light-SQL-Parser-Class<br>	 <br>	  param $query<br>	  return mixed\|string | Get SQL Query method                   |
+| parseTables         | 	  package Light-SQL-Parser-Class<br>	  link https:github.commarcocesaratoPHP-Light-SQL-Parser-Class<br>	 <br>	  param $_query<br>	  return array\|mixed | Get SQL Query Tables                   |
+| parseQueries        | 	  package Light-SQL-Parser-Class<br>	  link https:github.commarcocesaratoPHP-Light-SQL-Parser-Class<br>	 <br>	  Get all queries<br>	  param $query<br>	  return array\|null\|string\|string[] | Get SQL Query method                   |
+

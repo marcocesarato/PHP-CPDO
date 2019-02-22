@@ -1,6 +1,6 @@
 # CPDO - Cache PDO Query Class
 
-**Version:** 0.2.1.35 beta
+**Version:** 0.2.1.36 beta
 
 **Github:** https://github.com/marcocesarato/CPDO 
 
@@ -191,7 +191,7 @@ unset($cache);
 | Methods      | Parameters                                         | Description                            |
 | ------------ | -------------------------------------------------- | -------------------------------------- |
 | __construct  |                                                    | CPDO constructor                       |
-| connect      | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br>	  return bool\|static | Autogeneration of the DSN              |
+| connect      | 	  param $database_type<br>	  param null $database_name<br>	  param null $database_host<br>	  param null $database_user<br>	  param null $database_pswd<br> param null $database_charset<br>	  return bool\|static | Autogeneration of the DSN              |
 | exec         | param string $statement<br>	  return bool\|int\|null |                                        |
 | query        | param string $statement<br>	  param int $mode<br>	  param null $arg3<br>	  param array $ctorargs<br>	  return array\|bool\|null\|PDOStatement |                                        |
 | enableDebug  |                                                    | Enable debug                           |

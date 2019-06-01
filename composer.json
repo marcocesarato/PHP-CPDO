@@ -1,5 +1,5 @@
 {
-  "name": "marcocesarato/CPDO",
+  "name": "marcocesarato/cpdo",
   "description": "This package can retrieve PDO query results from cache variables.  It extends the base PDO class and override some functions to handle database query execution and store the query results in variables. The class can also return query results for cached queries for previously executed queries to retrieve the results faster for repeated queries.",
   "type": "console",
   "license": "GPL-3.0-or-later",

@@ -1,6 +1,6 @@
 <?php
 
-namespace marcocesarato\CPDO;
+namespace marcocesarato\cpdo;
 
 use PDO;
 use PDOStatement;
@@ -12,7 +12,7 @@ use PDOStatement;
  * @copyright Copyright (c) 2019
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.2.37
+ * @version 0.2.2.38
  */
 class CPDO extends PDO {
 

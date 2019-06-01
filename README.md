@@ -1,6 +1,6 @@
 # CPDO - Cache PDO Query Class
 
-**Version:** 0.2.2.37 beta
+**Version:** 0.2.2.38 beta
 
 **Github:** https://github.com/marcocesarato/CPDO 
 
@@ -39,6 +39,12 @@ This class prevent to do the same query on the database, retrieving the data fro
 * Oracle
 * PostgreSQL
 * SQLite
+
+## Install
+### Composer
+1. Install composer
+2. Type `composer require marcocesarato/cpdo`
+4. Enjoy
 
 ## Usage
 

@@ -8,21 +8,22 @@ use PDOStatement;
 /**
  * CPDO
  * Memory Cached PDO Class
+ * @package marcocesarato\cpdo
  * @author Marco Cesarato <cesarato.developer@gmail.com>
  * @copyright Copyright (c) 2019
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @link https://github.com/marcocesarato/CPDO
- * @version 0.2.2.38
+ * @link https://github.com/marcocesarato/PHP-CPDO
+ * @version 0.2.2.39
  */
 class CPDO extends PDO {
 
-    /**
-     * CPDO constructor.
-     */
-    function __construct($dsn, $username = "", $password = "", $driver_options = array()) {
-        parent::__construct($dsn, $username, $password, $driver_options);
-        parent::setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        parent::setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', $this));
+	/**
+	 * CPDO constructor.
+	 */
+	function __construct($dsn, $username = "", $password = "", $driver_options = array()) {
+		parent::__construct($dsn, $username, $password, $driver_options);
+		parent::setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+		parent::setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', $this));
 		/*parent::setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		try {
 			@parent::setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', array($this)));
@@ -110,16 +111,16 @@ class CPDO extends PDO {
 	 * @return bool|int|null
 	 */
 	public function exec($statement) {
-	    $args           = 'exec';
-		$result         = null;
-		$cache          = null;
+		$args = 'exec';
+		$result = null;
+		$cache = null;
 		$__logger_start = microtime(true);
-		$method         = CPDOCache::parseMethod($statement);
+		$method = CPDOCache::parseMethod($statement);
 		if(in_array($method, CPDOCache::getOperationMethods('read'))) {
-            $cache = CPDOCache::getcache($statement, $args);
-            if(empty($cache)) {
-                $result = parent::exec($statement);
-                CPDOCache::setcache($statement, $result, $args);
+			$cache = CPDOCache::getcache($statement, $args);
+			if(empty($cache)) {
+				$result = parent::exec($statement);
+				CPDOCache::setcache($statement, $result, $args);
 			} else {
 				$result = $cache;
 			}
@@ -144,8 +145,8 @@ class CPDO extends PDO {
 	 */
 	public function query($statement, $mode = null, $arg3 = null, $ctorargs = null) {
 
-	    $args = array('query', $mode, $arg3, $ctorargs);
-        $args = array_filter($args);
+		$args = array('query', $mode, $arg3, $ctorargs);
+		$args = array_filter($args);
 
 		$method = CPDOCache::parseMethod($statement);
 		if(in_array($method, CPDOCache::getOperationMethods('read'))) {
@@ -211,7 +212,7 @@ class CPDO extends PDO {
 	 * @return array|bool
 	 */
 	public function getTables() {
-		$sql   = 'SHOW TABLES';
+		$sql = 'SHOW TABLES';
 		$query = $this->query($sql);
 
 		return $query->fetchAll(PDO::FETCH_COLUMN);
@@ -223,9 +224,9 @@ class CPDO extends PDO {
 	 */
 	public function backup($backup_dir, $backup_tables = '*') {
 		$tables = array();
-		$data   = "\n-- DATABASE BACKUP --\n\n";
-		$data   .= "--\n-- Date: " . date("d/m/Y H:i:s", time()) . "\n";
-		$data   .= "\n\n-- --------------------------------------------------------\n\n";
+		$data = "\n-- DATABASE BACKUP --\n\n";
+		$data .= "--\n-- Date: " . date("d/m/Y H:i:s", time()) . "\n";
+		$data .= "\n\n-- --------------------------------------------------------\n\n";
 		if($backup_tables == '*') {
 			$tables = $this->getTables();
 		} else {
@@ -236,19 +237,19 @@ class CPDO extends PDO {
 			$sth->execute();
 			$num_fields = $sth->fetch(PDO::FETCH_NUM);
 			$num_fields = $num_fields[0];
-			$result     = $this->prepare('SELECT * FROM ' . $table);
+			$result = $this->prepare('SELECT * FROM ' . $table);
 			$result->execute();
-			$data    .= "--\n-- CREATE TABLE `" . $table . "`\n--";
-			$data    .= "\n\nDROP TABLE IF EXISTS `" . $table . "`;";
+			$data .= "--\n-- CREATE TABLE `" . $table . "`\n--";
+			$data .= "\n\nDROP TABLE IF EXISTS `" . $table . "`;";
 			$result2 = $this->prepare('SHOW CREATE TABLE ' . $table);
 			$result2->execute();
-			$row2    = $result2->fetch(PDO::FETCH_NUM);
+			$row2 = $result2->fetch(PDO::FETCH_NUM);
 			$row2[1] = preg_replace("/AUTO_INCREMENT=[\w]*./", '', $row2[1]);
 			$row2[1] = str_replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS", $row2[1]);
-			$data    .= "\n\n" . $row2[1] . ";\n\n";
-			$data    .= "-- --------------------------------------------------------\n\n";
-			$data    .= "--\n-- INSERT INTO table `" . $table . "`\n--\n\n";
-			for($i = 0; $i < $num_fields; $i ++) {
+			$data .= "\n\n" . $row2[1] . ";\n\n";
+			$data .= "-- --------------------------------------------------------\n\n";
+			$data .= "--\n-- INSERT INTO table `" . $table . "`\n--\n\n";
+			for($i = 0; $i < $num_fields; $i++) {
 				while($row = $result->fetch(PDO::FETCH_NUM)) {
 					$data .= 'INSERT INTO ' . $table . ' VALUES(' . implode(',', array_map(array(
 							$this,
@@ -257,9 +258,9 @@ class CPDO extends PDO {
 				}
 			}
 		}
-		$data     .= "\n-- --------------------------------------------------------\n\n\n";
+		$data .= "\n-- --------------------------------------------------------\n\n\n";
 		$filename = $backup_dir . '/db-backup' . ((is_array($backup_tables)) ? '-' . (implode(",", $tables)) : '') . '-' . date("dmY", time()) . '-' . time() . '.sql';
-		$f        = fopen($filename, "w+");
+		$f = fopen($filename, "w+");
 		fwrite($f, pack("CCC", 0xef, 0xbb, 0xbf));
 		fwrite($f, $data);
 		fclose($f);
@@ -273,8 +274,8 @@ class CPDO extends PDO {
 		if($value === null) {
 			return 'NULL';
 		}
-		if((string) intval($value) === $value) {
-			return (int) $value;
+		if((string)intval($value) === $value) {
+			return (int)$value;
 		}
 
 		return $this->quote($value);
@@ -283,11 +284,12 @@ class CPDO extends PDO {
 
 /**
  * Class CPDOStatement
+ * @package marcocesarato\cpdo
  */
 class CPDOStatement extends PDOStatement {
 
 	public $queryString;
-    private $queryParams = array();
+	private $queryParams = array();
 
 	// Constructor must be overrided
 	protected function __construct($dbh) {
@@ -300,22 +302,22 @@ class CPDOStatement extends PDOStatement {
 	 */
 	public function execute($input_parameters = null) {
 
-        $input_parameters = array($this->queryParams, $input_parameters);
-        $input_parameters = array_filter($input_parameters);
+		$input_parameters = array($this->queryParams, $input_parameters);
+		$input_parameters = array_filter($input_parameters);
 
-		$result           = null;
-		$cache            = null;
-		$__logger_start   = microtime(true);
-		$method           = CPDOCache::parseMethod($this->queryString);
+		$result = null;
+		$cache = null;
+		$__logger_start = microtime(true);
+		$method = CPDOCache::parseMethod($this->queryString);
 		if(in_array($method, CPDOCache::getOperationMethods('read'))) {
-            $cache = CPDOCache::getcache($this->queryString, $input_parameters);
-            if(empty($cache)) {
-                if(empty($input_parameters)) {
-                    $input_parameters = null;
-                }
-                $result = parent::execute($input_parameters);
-                CPDOCache::setcache($this->queryString, $result, $input_parameters);
-            }
+			$cache = CPDOCache::getcache($this->queryString, $input_parameters);
+			if(empty($cache)) {
+				if(empty($input_parameters)) {
+					$input_parameters = null;
+				}
+				$result = parent::execute($input_parameters);
+				CPDOCache::setcache($this->queryString, $result, $input_parameters);
+			}
 		} elseif(in_array($method, CPDOCache::getOperationMethods('write'))) {
 			CPDOCache::deletecache($this->queryString);
 		}
@@ -336,8 +338,8 @@ class CPDOStatement extends PDOStatement {
 	 */
 	public function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null) {
 
-        $fetch_style = array('fetch', $this->queryParams, $fetch_style);
-        $fetch_style = array_filter($fetch_style);
+		$fetch_style = array('fetch', $this->queryParams, $fetch_style);
+		$fetch_style = array_filter($fetch_style);
 
 		$cache = CPDOCache::getcache($this->queryString, $fetch_style);
 		if(empty($cache)) {
@@ -367,8 +369,8 @@ class CPDOStatement extends PDOStatement {
 	 */
 	public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null) {
 
-        $fetch_style = array('fetchAll', $this->queryParams, $fetch_style);
-        $fetch_style = array_filter($fetch_style);
+		$fetch_style = array('fetchAll', $this->queryParams, $fetch_style);
+		$fetch_style = array_filter($fetch_style);
 
 		$cache = CPDOCache::getcache($this->queryString, $fetch_style);
 		if(empty($cache)) {
@@ -392,10 +394,10 @@ class CPDOStatement extends PDOStatement {
 	 * @param array $ctor_args
 	 * @return mixed|null
 	 */
-	public function fetchObject($class_name = "stdClass", $ctor_args = array()){
+	public function fetchObject($class_name = "stdClass", $ctor_args = array()) {
 
-        $ctor_args = array('fetchObject', $this->queryParams, $ctor_args);
-        $ctor_args = array_filter($ctor_args);
+		$ctor_args = array('fetchObject', $this->queryParams, $ctor_args);
+		$ctor_args = array_filter($ctor_args);
 
 		$cache = CPDOCache::getcache($this->queryString, $class_name);
 		if(empty($cache)) {
@@ -418,8 +420,8 @@ class CPDOStatement extends PDOStatement {
 	 */
 	public function fetchColumn($column_number = 0) {
 
-        $column_number = array('fetchColumn', $this->queryParams, $column_number);
-        $column_number = array_filter($column_number);
+		$column_number = array('fetchColumn', $this->queryParams, $column_number);
+		$column_number = array_filter($column_number);
 
 		$cache = CPDOCache::getcache($this->queryString, $column_number);
 		if(empty($cache)) {
@@ -432,44 +434,48 @@ class CPDOStatement extends PDOStatement {
 		return $cache;
 	}
 
-    /**
-     * @param mixed $parameter
-     * @param mixed $variable
-     * @param int $data_type
-     * @param null $length
-     * @param null $driver_options
-     * @return bool
-     */
-    public function bindParam($parameter, &$variable, $data_type = PDO::PARAM_STR, $length = null, $driver_options = null) {
-        $this->queryParams[] = array($parameter, $variable, $data_type, $length, $driver_options);
-        return parent::bindParam($parameter,$variable, $data_type, $length, $driver_options);
-    }
+	/**
+	 * @param mixed $parameter
+	 * @param mixed $variable
+	 * @param int $data_type
+	 * @param null $length
+	 * @param null $driver_options
+	 * @return bool
+	 */
+	public function bindParam($parameter, &$variable, $data_type = PDO::PARAM_STR, $length = null, $driver_options = null) {
+		$this->queryParams[] = array($parameter, $variable, $data_type, $length, $driver_options);
+		return parent::bindParam($parameter, $variable, $data_type, $length, $driver_options);
+	}
 
-    /**
-     * @param mixed $column
-     * @param mixed $param
-     * @param null $type
-     * @param null $maxlen
-     * @param null $driverdata
-     * @return bool
-     */
-    public function bindColumn($column, &$param, $type = null, $maxlen = null, $driverdata = null) {
-        $this->queryParams[] = array($column, $param, $type, $maxlen, $driverdata);
-        return parent::bindColumn($column,$param, $type, $maxlen, $driverdata);
-    }
+	/**
+	 * @param mixed $column
+	 * @param mixed $param
+	 * @param null $type
+	 * @param null $maxlen
+	 * @param null $driverdata
+	 * @return bool
+	 */
+	public function bindColumn($column, &$param, $type = null, $maxlen = null, $driverdata = null) {
+		$this->queryParams[] = array($column, $param, $type, $maxlen, $driverdata);
+		return parent::bindColumn($column, $param, $type, $maxlen, $driverdata);
+	}
 
-    /**
-     * @param mixed $parameter
-     * @param mixed $value
-     * @param int $data_type
-     * @return bool
-     */
-    public function bindValue($parameter, $value, $data_type = PDO::PARAM_STR) {
-        $this->queryParams[] = array($parameter, $value, $data_type);
-        return parent::bindValue($parameter,$value, $data_type);
-    }
+	/**
+	 * @param mixed $parameter
+	 * @param mixed $value
+	 * @param int $data_type
+	 * @return bool
+	 */
+	public function bindValue($parameter, $value, $data_type = PDO::PARAM_STR) {
+		$this->queryParams[] = array($parameter, $value, $data_type);
+		return parent::bindValue($parameter, $value, $data_type);
+	}
 }
 
+/**
+ * Class CPDOLogger
+ * @package marcocesarato\cpdo\
+ */
 class CPDOLogger {
 	protected static $__enabled = false;
 	protected static $__count = 0;
@@ -505,7 +511,7 @@ class CPDOLogger {
 	 */
 	public static function addLog($query, $time, $cache) {
 		if(self::isEnabled()) {
-			self::$__count ++;
+			self::$__count++;
 			self::$__logs[$query][] = array('time' => time(), 'execution_time' => $time, 'cached' => $cache);
 		}
 	}
@@ -539,13 +545,17 @@ class CPDOLogger {
 	 */
 	public static function cleanLogs() {
 		self::$__count = 0;
-		self::$__logs  = array();
+		self::$__logs = array();
 	}
 }
 
+/**
+ * Class CPDOCache
+ * @package marcocesarato\cpdo
+ */
 class CPDOCache {
 	protected static $__operations = array(
-		'read'  => array('SELECT', 'SHOW', 'DESCRIBE'),
+		'read' => array('SELECT', 'SHOW', 'DESCRIBE'),
 		'write' => array('INSERT', 'UPDATE', 'DELETE', 'DROP', 'TRUNCATE', 'ALTER')
 	);
 	protected static $__exclude = array();
@@ -610,7 +620,7 @@ class CPDOCache {
 	 */
 	public static function addException($exclude) {
 		self::$__exclude[] = $exclude;
-		self::$__exclude   = array_unique(self::$__exclude);
+		self::$__exclude = array_unique(self::$__exclude);
 	}
 
 	/**
@@ -641,12 +651,12 @@ class CPDOCache {
 		if(!self:: isEnabled()) {
 			return null;
 		}
-		$e        = new \Exception();
-		$trace    = $e->getTrace();
+		$e = new \Exception();
+		$trace = $e->getTrace();
 		$function = $trace[1]['function'];
-		$table    = self::keycache($query);
-		$tables   = self::parseTables($query);
-        $arg      = self::argkey($arg);
+		$table = self::keycache($query);
+		$tables = self::parseTables($query);
+		$arg = self::argkey($arg);
 		foreach(self::getExceptions() as $key) {
 			foreach($tables as $table) {
 				if(strpos($key, $table) !== false) {
@@ -667,11 +677,11 @@ class CPDOCache {
 		if(!self:: isEnabled()) {
 			return null;
 		}
-		$e        = new \Exception();
-		$trace    = $e->getTrace();
+		$e = new \Exception();
+		$trace = $e->getTrace();
 		$function = $trace[1]['function'];
-		$table    = self::keycache($query);
-		$arg      = self::argkey($arg);
+		$table = self::keycache($query);
+		$arg = self::argkey($arg);
 		if(isset(self::$__cache[$table][$query][$function][$arg])) {
 			return self::$__cache[$table][$query][$function][$arg];
 		}
@@ -708,16 +718,16 @@ class CPDOCache {
 		return implode('/', $tables);
 	}
 
-    /**
-     * Get args key cache
-     * @param $query
-     * @return string
-     */
-    protected static function argkey($arg) {
-        $arg = md5(json_encode($arg));
+	/**
+	 * Get args key cache
+	 * @param $query
+	 * @return string
+	 */
+	protected static function argkey($arg) {
+		$arg = md5(json_encode($arg));
 
-        return $arg;
-    }
+		return $arg;
+	}
 
 	/**
 	 * Get SQL Query method
@@ -788,13 +798,13 @@ class CPDOCache {
 				foreach($matches as $val) {
 					$tables = explode(',', $val[1]);
 					foreach($tables as $table) {
-						$table     = trim(preg_replace('#[\s]+(AS[\s]+)[\w\.]+#i', '', $table));
+						$table = trim(preg_replace('#[\s]+(AS[\s]+)[\w\.]+#i', '', $table));
 						$results[] = $table;
 					}
 				}
 			}
 		}
-		$tables                         = array_unique($results);
+		$tables = array_unique($results);
 		self::$__parser_tables[$_query] = $tables;
 
 		return $tables;

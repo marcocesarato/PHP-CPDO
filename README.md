@@ -1,8 +1,8 @@
 # CPDO - Cache PDO Query Class
 
-**Version:** 0.2.2.38 beta
+**Version:** 0.2.2.39 beta
 
-**Github:** https://github.com/marcocesarato/CPDO 
+**Github:** https://github.com/marcocesarato/PHP-CPDO 
 
 **Author:** Marco Cesarato
 

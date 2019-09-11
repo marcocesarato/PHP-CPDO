@@ -16,6 +16,8 @@
   },
   "minimum-stability": "stable",
   "require": {
-    "php": ">=5.1.2"
+    "php": ">=5.1.2",
+    "ext-pdo": "*",
+    "ext-json": "*"
   }
 }

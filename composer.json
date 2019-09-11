@@ -9,6 +9,11 @@
       "email": "cesarato.developer@gmail.com"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "marcocesarato\\": "src/"
+    }
+  },
   "minimum-stability": "stable",
   "require": {
     "php": ">=5.1.2"

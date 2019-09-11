@@ -2,14 +2,17 @@
 
 namespace marcocesarato\cpdo;
 
+use Exception;
+
 /**
  * Class CPDOCache
  * @package marcocesarato\cpdo
  */
-class CPDOCache {
+class CPDOCache
+{
     protected static $__operations = array(
-        'read' => array('SELECT', 'SHOW', 'DESCRIBE'),
-        'write' => array('INSERT', 'UPDATE', 'DELETE', 'DROP', 'TRUNCATE', 'ALTER')
+        'read'  => array('SELECT', 'SHOW', 'DESCRIBE'),
+        'write' => array('INSERT', 'UPDATE', 'DELETE', 'DROP', 'TRUNCATE', 'ALTER'),
     );
     protected static $__exclude = array();
     protected static $__enabled = true;
@@ -21,14 +24,16 @@ class CPDOCache {
     /**
      * Enable cache
      */
-    public static function enable() {
+    public static function enable()
+    {
         self::$__enabled = true;
     }
 
     /**
      * Disable cache
      */
-    public static function disable() {
+    public static function disable()
+    {
         self::$__enabled = false;
     }
 
@@ -36,7 +41,8 @@ class CPDOCache {
      * Return if cache is enabled
      * @return bool
      */
-    public static function isEnabled() {
+    public static function isEnabled()
+    {
         return self::$__enabled;
     }
 
@@ -45,8 +51,9 @@ class CPDOCache {
      * @param $mixed
      * @return bool
      */
-    public static function populate($cache) {
-        if(is_array($cache)) {
+    public static function populate($cache)
+    {
+        if (is_array($cache)) {
             self::$__cache = $cache;
         }
     }
@@ -55,7 +62,8 @@ class CPDOCache {
      * Retrieve Cache
      * @return array
      */
-    public static function retrieve() {
+    public static function retrieve()
+    {
         return self::$__cache;
     }
 
@@ -63,7 +71,8 @@ class CPDOCache {
      * Get all excluded tables
      * @return array
      */
-    public static function getExceptions() {
+    public static function getExceptions()
+    {
         return self::$__exclude;
     }
 
@@ -71,16 +80,18 @@ class CPDOCache {
      * Add exception
      * @param $exclude
      */
-    public static function addException($exclude) {
+    public static function addException($exclude)
+    {
         self::$__exclude[] = $exclude;
-        self::$__exclude = array_unique(self::$__exclude);
+        self::$__exclude   = array_unique(self::$__exclude);
     }
 
     /**
      * Add exceptions
      * @param $exclude
      */
-    public static function addExceptions($exclude) {
+    public static function addExceptions($exclude)
+    {
         self::$__exclude = array_merge(self::$__exclude, $exclude);
         self::$__exclude = array_unique(self::$__exclude);
     }
@@ -90,29 +101,31 @@ class CPDOCache {
      * @param $operation
      * @return mixed
      */
-    public static function getOperationMethods($operation) {
+    public static function getOperationMethods($operation)
+    {
         return self::$__operations[$operation];
     }
 
     /**
      * Set Cache
-     * @param $query
-     * @param $value
-     * @param null $arg
+     * @param        $query
+     * @param        $value
+     * @param  null  $arg
      */
-    public static function setcache($query, $value, $arg = null) {
-        if(!self:: isEnabled()) {
+    public static function setcache($query, $value, $arg = null)
+    {
+        if (! self:: isEnabled()) {
             return null;
         }
-        $e = new \Exception();
-        $trace = $e->getTrace();
+        $e        = new Exception();
+        $trace    = $e->getTrace();
         $function = $trace[1]['function'];
-        $table = self::keycache($query);
-        $tables = self::parseTables($query);
-        $arg = self::argkey($arg);
-        foreach(self::getExceptions() as $key) {
-            foreach($tables as $table) {
-                if(strpos($key, $table) !== false) {
+        $table    = self::keycache($query);
+        $tables   = self::parseTables($query);
+        $arg      = self::argkey($arg);
+        foreach (self::getExceptions() as $key) {
+            foreach ($tables as $table) {
+                if (strpos($key, $table) !== false) {
                     return false;
                 }
             }
@@ -122,20 +135,21 @@ class CPDOCache {
 
     /**
      * Get Cache
-     * @param $query
-     * @param null $arg
+     * @param        $query
+     * @param  null  $arg
      * @return null
      */
-    public static function getcache($query, $arg = null) {
-        if(!self:: isEnabled()) {
+    public static function getcache($query, $arg = null)
+    {
+        if (! self:: isEnabled()) {
             return null;
         }
-        $e = new \Exception();
-        $trace = $e->getTrace();
+        $e        = new Exception();
+        $trace    = $e->getTrace();
         $function = $trace[1]['function'];
-        $table = self::keycache($query);
-        $arg = self::argkey($arg);
-        if(isset(self::$__cache[$table][$query][$function][$arg])) {
+        $table    = self::keycache($query);
+        $arg      = self::argkey($arg);
+        if (isset(self::$__cache[$table][$query][$function][$arg])) {
             return self::$__cache[$table][$query][$function][$arg];
         }
 
@@ -146,14 +160,15 @@ class CPDOCache {
      * Delete Cache
      * @param $query
      */
-    public static function deletecache($query) {
-        if(!self:: isEnabled()) {
+    public static function deletecache($query)
+    {
+        if (! self:: isEnabled()) {
             return null;
         }
         $tables = self::parseTables($query);
-        foreach(array_keys(self::$__cache) as $key) {
-            foreach($tables as $table) {
-                if(strpos($key, $table) !== false) {
+        foreach (array_keys(self::$__cache) as $key) {
+            foreach ($tables as $table) {
+                if (strpos($key, $table) !== false) {
                     self::$__cache[$key] = array();
                 }
             }
@@ -165,7 +180,8 @@ class CPDOCache {
      * @param $query
      * @return string
      */
-    protected static function keycache($query) {
+    protected static function keycache($query)
+    {
         $tables = self::parseTables($query);
 
         return implode('/', $tables);
@@ -176,7 +192,8 @@ class CPDOCache {
      * @param $query
      * @return string
      */
-    protected static function argkey($arg) {
+    protected static function argkey($arg)
+    {
         $arg = md5(json_encode($arg));
 
         return $arg;
@@ -184,13 +201,14 @@ class CPDOCache {
 
     /**
      * Get SQL Query method
-     * @package Light-SQL-Parser-Class
-     * @link https://github.com/marcocesarato/PHP-Light-SQL-Parser-Class
      * @param $query
      * @return mixed|string
+     * @package Light-SQL-Parser-Class
+     * @link    https://github.com/marcocesarato/PHP-Light-SQL-Parser-Class
      */
-    public static function parseMethod($query) {
-        if(!empty(self::$__parser_method[$query])) {
+    public static function parseMethod($query)
+    {
+        if (! empty(self::$__parser_method[$query])) {
             return self::$__parser_method[$query];
         }
         $methods = array(
@@ -207,13 +225,13 @@ class CPDOCache {
             'EXPLAIN',
             'DESCRIBE',
             'TRUNCATE',
-            'ALTER'
+            'ALTER',
         );
         $queries = self::parseQueries($query);
-        foreach($queries as $query) {
-            foreach($methods as $method) {
+        foreach ($queries as $query) {
+            foreach ($methods as $method) {
                 $_method = str_replace(' ', '[\s]+', $method);
-                if(preg_match('#^[\s]*' . $_method . '[\s]+#i', $query)) {
+                if (preg_match('#^[\s]*' . $_method . '[\s]+#i', $query)) {
                     self::$__parser_method[$query] = $method;
 
                     return $method;
@@ -226,38 +244,39 @@ class CPDOCache {
 
     /**
      * Get SQL Query Tables
-     * @package Light-SQL-Parser-Class
-     * @link https://github.com/marcocesarato/PHP-Light-SQL-Parser-Class
      * @param $_query
      * @return array|mixed
+     * @package Light-SQL-Parser-Class
+     * @link    https://github.com/marcocesarato/PHP-Light-SQL-Parser-Class
      */
-    public static function parseTables($_query) {
+    public static function parseTables($_query)
+    {
         $connectors = "OR|AND|ON|LIMIT|WHERE|JOIN|GROUP|ORDER|OPTION|LEFT|INNER|RIGHT|OUTER|SET|HAVING|VALUES|SELECT|\(|\)";
-        if(!empty(self::$__parser_tables[$_query])) {
+        if (! empty(self::$__parser_tables[$_query])) {
             return self::$__parser_tables[$_query];
         }
         $results = array();
         $queries = self::parseQueries($_query);
-        foreach($queries as $query) {
+        foreach ($queries as $query) {
             $patterns = array(
                 '#[\s]+FROM[\s]+(([\s]*(?!' . $connectors . ')[\w]+([\s]+(AS[\s]+)?(?!' . $connectors . ')[\w]+)?[\s]*[,]?)+)#i',
                 '#[\s]*INSERT[\s]+INTO[\s]+([\w]+)#i',
                 '#[\s]*UPDATE[\s]+([\w]+)#i',
                 '#[\s]+[\s]+JOIN[\s]+([\w]+)#i',
-                '#[\s]+TABLE[\s]+([\w]+)#i'
+                '#[\s]+TABLE[\s]+([\w]+)#i',
             );
-            foreach($patterns as $pattern) {
+            foreach ($patterns as $pattern) {
                 preg_match_all($pattern, $query, $matches, PREG_SET_ORDER);
-                foreach($matches as $val) {
+                foreach ($matches as $val) {
                     $tables = explode(',', $val[1]);
-                    foreach($tables as $table) {
-                        $table = trim(preg_replace('#[\s]+(AS[\s]+)[\w\.]+#i', '', $table));
+                    foreach ($tables as $table) {
+                        $table     = trim(preg_replace('#[\s]+(AS[\s]+)[\w\.]+#i', '', $table));
                         $results[] = $table;
                     }
                 }
             }
         }
-        $tables = array_unique($results);
+        $tables                         = array_unique($results);
         self::$__parser_tables[$_query] = $tables;
 
         return $tables;
@@ -265,13 +284,14 @@ class CPDOCache {
 
     /**
      * Get SQL Query method
-     * @package Light-SQL-Parser-Class
-     * @link https://github.com/marcocesarato/PHP-Light-SQL-Parser-Class
-     * Get all queries
      * @param $query
      * @return array|null|string|string[]
+     * @package Light-SQL-Parser-Class
+     * @link    https://github.com/marcocesarato/PHP-Light-SQL-Parser-Class
+     *          Get all queries
      */
-    public static function parseQueries($query) {
+    public static function parseQueries($query)
+    {
         $queries = preg_replace('#\/\*[\s\S]*?\*\/#', '', $query);
         $queries = preg_replace('#;(?:(?<=["\'];)|(?=["\']))#', '', $queries);
         $queries = preg_replace('#[\s]*UNION([\s]+ALL)?[\s]*#', ';', $queries);

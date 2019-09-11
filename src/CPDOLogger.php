@@ -6,7 +6,8 @@ namespace marcocesarato\cpdo;
  * Class CPDOLogger
  * @package marcocesarato\cpdo\
  */
-class CPDOLogger {
+class CPDOLogger
+{
     protected static $__enabled = false;
     protected static $__count = 0;
     protected static $__logs = array();
@@ -14,14 +15,16 @@ class CPDOLogger {
     /**
      * Enable logs
      */
-    public static function enable() {
+    public static function enable()
+    {
         self::$__enabled = true;
     }
 
     /**
      * Disable logs
      */
-    public static function disable() {
+    public static function disable()
+    {
         self::$__enabled = false;
     }
 
@@ -29,7 +32,8 @@ class CPDOLogger {
      * Return if logs are enabled
      * @return bool
      */
-    public static function isEnabled() {
+    public static function isEnabled()
+    {
         return self::$__enabled;
     }
 
@@ -39,8 +43,9 @@ class CPDOLogger {
      * @param $time
      * @param $cache
      */
-    public static function addLog($query, $time, $cache) {
-        if(self::isEnabled()) {
+    public static function addLog($query, $time, $cache)
+    {
+        if (self::isEnabled()) {
             self::$__count++;
             self::$__logs[$query][] = array('time' => time(), 'execution_time' => $time, 'cached' => $cache);
         }
@@ -50,7 +55,8 @@ class CPDOLogger {
      * Get Logs
      * @return array
      */
-    public static function getLogs() {
+    public static function getLogs()
+    {
         return array('count' => self::$__count, 'queries' => self::$__logs);
     }
 
@@ -58,7 +64,8 @@ class CPDOLogger {
      * Get Counter
      * @return int
      */
-    public static function getCounter() {
+    public static function getCounter()
+    {
         return self::$__count;
     }
 
@@ -66,15 +73,17 @@ class CPDOLogger {
      * Get Counter
      * @return array
      */
-    public static function getQueries() {
+    public static function getQueries()
+    {
         return array_keys(self::$__logs);
     }
 
     /**
      * Clean Logs
      */
-    public static function cleanLogs() {
+    public static function cleanLogs()
+    {
         self::$__count = 0;
-        self::$__logs = array();
+        self::$__logs  = array();
     }
 }

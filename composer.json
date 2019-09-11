@@ -11,7 +11,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "marcocesarato\\": "src/"
+      "marcocesarato\\cpdo": "src"
     }
   },
   "minimum-stability": "stable",

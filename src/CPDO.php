@@ -16,7 +16,7 @@ use PDOStatement;
  *
  * @see      https://github.com/marcocesarato/PHP-CPDO
  *
- * @version   0.2.2.43
+ * @version   0.2.3.44
  */
 class CPDO extends PDO
 {
@@ -33,7 +33,7 @@ class CPDO extends PDO
         parent::__construct($dsn, $username, $password, $driver_options);
         parent::setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         try {
-            @parent::setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CPDOStatement', array($this)));
+            @parent::setAttribute(PDO::ATTR_STATEMENT_CLASS, array('marcocesarato\cpdo\CPDOStatement', array($this)));
         } catch (Exception $e) {
             echo $e->getMessage();
         }

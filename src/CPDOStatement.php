@@ -31,20 +31,17 @@ class CPDOStatement extends PDOStatement
      */
     public function execute($input_parameters = null)
     {
-        $input_parameters = array($this->queryParams, $input_parameters);
+        $args = array($this->queryParams, $input_parameters);
 
         $result = null;
         $cache = null;
         $__logger_start = microtime(true);
         $method = CPDOCache::parseMethod($this->queryString);
         if (in_array($method, CPDOCache::getOperationMethods('read'))) {
-            $cache = CPDOCache::getcache($this->queryString, $input_parameters);
+            $cache = CPDOCache::getcache($this->queryString, $args);
             if (empty($cache)) {
-                if (empty($input_parameters)) {
-                    $input_parameters = null;
-                }
                 $result = parent::execute($input_parameters);
-                CPDOCache::setcache($this->queryString, $result, $input_parameters);
+                CPDOCache::setcache($this->queryString, $result, $args);
             } else {
                 $result = $cache;
             }
@@ -69,9 +66,9 @@ class CPDOStatement extends PDOStatement
      */
     public function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null)
     {
-        $fetch_style = array('fetch', $this->queryParams, $fetch_style);
+        $args = array('fetch', $this->queryParams, $fetch_style);
 
-        $cache = CPDOCache::getcache($this->queryString, $fetch_style);
+        $cache = CPDOCache::getcache($this->queryString, $args);
         if (empty($cache)) {
             if (!empty($cursor_offset)) {
                 if (empty($cursor_orientation)) {
@@ -83,7 +80,7 @@ class CPDOStatement extends PDOStatement
             } else {
                 $result = parent::fetch($fetch_style);
             }
-            CPDOCache::setcache($this->queryString, $result, $fetch_style);
+            CPDOCache::setcache($this->queryString, $result, $args);
 
             return $result;
         }
@@ -100,9 +97,9 @@ class CPDOStatement extends PDOStatement
      */
     public function fetchAll($fetch_style = null, $fetch_argument = null, $ctor_args = null)
     {
-        $fetch_style = array('fetchAll', $this->queryParams, $fetch_style);
+        $args = array('fetchAll', $this->queryParams, $fetch_style);
 
-        $cache = CPDOCache::getcache($this->queryString, $fetch_style);
+        $cache = CPDOCache::getcache($this->queryString, $args);
         if (empty($cache)) {
             if (!empty($ctor_args)) {
                 $result = parent::fetchAll($fetch_style, $fetch_argument, $ctor_args);
@@ -111,7 +108,7 @@ class CPDOStatement extends PDOStatement
             } else {
                 $result = parent::fetchAll($fetch_style);
             }
-            CPDOCache::setcache($this->queryString, $result, $fetch_style);
+            CPDOCache::setcache($this->queryString, $result, $args);
 
             return $result;
         }
@@ -127,16 +124,16 @@ class CPDOStatement extends PDOStatement
      */
     public function fetchObject($class_name = 'stdClass', $ctor_args = array())
     {
-        $ctor_args = array('fetchObject', $this->queryParams, $ctor_args);
+        $args = array('fetchObject', $this->queryParams, $ctor_args);
 
-        $cache = CPDOCache::getcache($this->queryString, $class_name);
+        $cache = CPDOCache::getcache($this->queryString, $args);
         if (empty($cache)) {
             if (!empty($ctor_args)) {
                 $result = parent::fetchAll($class_name, $ctor_args);
             } else {
                 $result = parent::fetchObject($class_name);
             }
-            CPDOCache::setcache($this->queryString, $result, $class_name);
+            CPDOCache::setcache($this->queryString, $result, $args);
 
             return $result;
         }
@@ -151,12 +148,12 @@ class CPDOStatement extends PDOStatement
      */
     public function fetchColumn($column_number = 0)
     {
-        $column_number = array('fetchColumn', $this->queryParams, $column_number);
+        $args = array('fetchColumn', $this->queryParams, $column_number);
 
-        $cache = CPDOCache::getcache($this->queryString, $column_number);
+        $cache = CPDOCache::getcache($this->queryString, $args);
         if (empty($cache)) {
             $result = parent::fetchColumn($column_number);
-            CPDOCache::setcache($this->queryString, $result, $column_number);
+            CPDOCache::setcache($this->queryString, $result, $args);
 
             return $result;
         }

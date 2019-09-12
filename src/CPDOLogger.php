@@ -3,8 +3,7 @@
 namespace marcocesarato\cpdo;
 
 /**
- * Class CPDOLogger
- * @package marcocesarato\cpdo\
+ * Class CPDOLogger.
  */
 class CPDOLogger
 {
@@ -13,7 +12,7 @@ class CPDOLogger
     protected static $__logs = array();
 
     /**
-     * Enable logs
+     * Enable logs.
      */
     public static function enable()
     {
@@ -21,7 +20,7 @@ class CPDOLogger
     }
 
     /**
-     * Disable logs
+     * Disable logs.
      */
     public static function disable()
     {
@@ -29,7 +28,8 @@ class CPDOLogger
     }
 
     /**
-     * Return if logs are enabled
+     * Return if logs are enabled.
+     *
      * @return bool
      */
     public static function isEnabled()
@@ -38,7 +38,8 @@ class CPDOLogger
     }
 
     /**
-     * Add new log
+     * Add new log.
+     *
      * @param $query
      * @param $time
      * @param $cache
@@ -52,7 +53,8 @@ class CPDOLogger
     }
 
     /**
-     * Get Logs
+     * Get Logs.
+     *
      * @return array
      */
     public static function getLogs()
@@ -61,7 +63,8 @@ class CPDOLogger
     }
 
     /**
-     * Get Counter
+     * Get Counter.
+     *
      * @return int
      */
     public static function getCounter()
@@ -70,7 +73,8 @@ class CPDOLogger
     }
 
     /**
-     * Get Counter
+     * Get Counter.
+     *
      * @return array
      */
     public static function getQueries()
@@ -79,11 +83,11 @@ class CPDOLogger
     }
 
     /**
-     * Clean Logs
+     * Clean Logs.
      */
     public static function cleanLogs()
     {
         self::$__count = 0;
-        self::$__logs  = array();
+        self::$__logs = array();
     }
 }

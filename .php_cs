@@ -1,9 +1,9 @@
 <?php
 
 return PhpCsFixer\Config::create()
-                        ->setUsingCache(false)
+                        ->setUsingCache(true)
                         ->setRiskyAllowed(true)
-                        //->setCacheFile(__DIR__ . '/.php_cs.cache')
+                        ->setCacheFile(__DIR__ . '/.php_cs.cache')
                         ->setRules(array(
         '@PSR1'                        => true,
         '@PSR2'                        => true,

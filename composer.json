@@ -16,11 +16,12 @@
   },
   "minimum-stability": "stable",
   "scripts": {
-    "fix-cs": "vendor/bin/php-cs-fixer fix --config=.cs.php",
-    "check-cs": "vendor/bin/php-cs-fixer fix --dry-run --format=txt --verbose --diff --diff-format=udiff --config=.cs.php"
+    "fix-cs": "vendor/bin/php-cs-fixer fix --config=.php_cs",
+    "check-cs": "vendor/bin/php-cs-fixer fix --dry-run --format=txt --verbose --diff --diff-format=udiff --config=.php_cs"
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^2.15"
+    "friendsofphp/php-cs-fixer": "^2.15",
+    "predis/predis": "^1.1"
   },
   "require": {
     "php": ">=5.1.2",

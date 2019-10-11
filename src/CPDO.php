@@ -199,7 +199,7 @@ class CPDO extends PDO
     /**
      * Enable debug.
      */
-    public function enableDebug()
+    public static function enableDebug()
     {
         CPDOLogger::enable();
     }
@@ -207,7 +207,7 @@ class CPDO extends PDO
     /**
      * Disable debug.
      */
-    public function disableDebug()
+    public static function disableDebug()
     {
         CPDOLogger::disable();
     }
@@ -215,7 +215,7 @@ class CPDO extends PDO
     /**
      * Enable cache.
      */
-    public function enableCache()
+    public static function enableCache()
     {
         CPDOCache::enable();
     }
@@ -223,7 +223,7 @@ class CPDO extends PDO
     /**
      * Disable cache.
      */
-    public function disableCache()
+    public static function disableCache()
     {
         CPDOCache::disable();
     }

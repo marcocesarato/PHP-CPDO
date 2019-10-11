@@ -9,23 +9,24 @@ use Exception;
  */
 class CPDOCache
 {
-    protected static $__operations = array(
+
+    protected static $operations = array(
         'read' => array('SELECT', 'SHOW', 'DESCRIBE'),
         'write' => array('INSERT', 'UPDATE', 'DELETE', 'DROP', 'TRUNCATE', 'ALTER'),
     );
-    protected static $__exclude = array();
-    protected static $__enabled = true;
-    protected static $__cache = array();
+    protected static $exclude = array();
+    protected static $enabled = true;
+    protected static $cache = array();
     // From Light SQL Parser Class
-    protected static $__parser_method = array();
-    protected static $__parser_tables = array();
+    protected static $parserMethod = array();
+    protected static $parserTables = array();
 
     /**
      * Enable cache.
      */
     public static function enable()
     {
-        self::$__enabled = true;
+        self::$enabled = true;
     }
 
     /**
@@ -33,7 +34,7 @@ class CPDOCache
      */
     public static function disable()
     {
-        self::$__enabled = false;
+        self::$enabled = false;
     }
 
     /**
@@ -43,7 +44,7 @@ class CPDOCache
      */
     public static function isEnabled()
     {
-        return self::$__enabled;
+        return self::$enabled;
     }
 
     /**
@@ -56,7 +57,7 @@ class CPDOCache
     public static function populate($cache)
     {
         if (is_array($cache)) {
-            self::$__cache = $cache;
+            self::$cache = $cache;
         }
     }
 
@@ -67,7 +68,7 @@ class CPDOCache
      */
     public static function retrieve()
     {
-        return self::$__cache;
+        return self::$cache;
     }
 
     /**
@@ -77,7 +78,7 @@ class CPDOCache
      */
     public static function getExceptions()
     {
-        return self::$__exclude;
+        return self::$exclude;
     }
 
     /**
@@ -87,8 +88,8 @@ class CPDOCache
      */
     public static function addException($exclude)
     {
-        self::$__exclude[] = $exclude;
-        self::$__exclude = array_unique(self::$__exclude);
+        self::$exclude[] = $exclude;
+        self::$exclude   = array_unique(self::$exclude);
     }
 
     /**
@@ -98,8 +99,8 @@ class CPDOCache
      */
     public static function addExceptions($exclude)
     {
-        self::$__exclude = array_merge(self::$__exclude, $exclude);
-        self::$__exclude = array_unique(self::$__exclude);
+        self::$exclude = array_merge(self::$exclude, $exclude);
+        self::$exclude = array_unique(self::$exclude);
     }
 
     /**
@@ -111,7 +112,7 @@ class CPDOCache
      */
     public static function getOperationMethods($operation)
     {
-        return self::$__operations[$operation];
+        return self::$operations[$operation];
     }
 
     /**
@@ -126,6 +127,7 @@ class CPDOCache
         if (!self:: isEnabled()) {
             return null;
         }
+
         $e = new Exception();
         $trace = $e->getTrace();
         $function = $trace[1]['function'];
@@ -139,7 +141,6 @@ class CPDOCache
                 }
             }
         }
-        self::$__cache[$table][$query][$function][$arg] = $value;
     }
 
     /**
@@ -160,8 +161,9 @@ class CPDOCache
         $function = $trace[1]['function'];
         $table = self::keycache($query);
         $arg = self::argkey($arg);
-        if (isset(self::$__cache[$table][$query][$function][$arg])) {
-            return self::$__cache[$table][$query][$function][$arg];
+
+        if (isset(self::$cache[$table][$query][$function][$arg])) {
+            return self::$cache[$table][$query][$function][$arg];
         }
 
         return null;
@@ -178,10 +180,10 @@ class CPDOCache
             return null;
         }
         $tables = self::parseTables($query);
-        foreach (array_keys(self::$__cache) as $key) {
+        foreach (array_keys(self::$cache) as $key) {
             foreach ($tables as $table) {
                 if (strpos($key, $table) !== false) {
-                    self::$__cache[$key] = array();
+                    self::$cache[$key] = array();
                 }
             }
         }
@@ -226,8 +228,8 @@ class CPDOCache
      */
     public static function parseMethod($query)
     {
-        if (!empty(self::$__parser_method[$query])) {
-            return self::$__parser_method[$query];
+        if (!empty(self::$parserMethod[$query])) {
+            return self::$parserMethod[$query];
         }
         $methods = array(
             'SELECT',
@@ -250,7 +252,7 @@ class CPDOCache
             foreach ($methods as $method) {
                 $_method = str_replace(' ', '[\s]+', $method);
                 if (preg_match('#^[\s]*' . $_method . '[\s]+#i', $query)) {
-                    self::$__parser_method[$query] = $method;
+                    self::$parserMethod[$query] = $method;
 
                     return $method;
                 }
@@ -272,8 +274,8 @@ class CPDOCache
     public static function parseTables($_query)
     {
         $connectors = "OR|AND|ON|LIMIT|WHERE|JOIN|GROUP|ORDER|OPTION|LEFT|INNER|RIGHT|OUTER|SET|HAVING|VALUES|SELECT|\(|\)";
-        if (!empty(self::$__parser_tables[$_query])) {
-            return self::$__parser_tables[$_query];
+        if (!empty(self::$parserTables[$_query])) {
+            return self::$parserTables[$_query];
         }
         $results = array();
         $queries = self::parseQueries($_query);
@@ -297,7 +299,8 @@ class CPDOCache
             }
         }
         $tables = array_unique($results);
-        self::$__parser_tables[$_query] = $tables;
+
+        self::$parserTables[$_query] = $tables;
 
         return $tables;
     }

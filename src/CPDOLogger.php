@@ -7,16 +7,16 @@ namespace marcocesarato\cpdo;
  */
 class CPDOLogger
 {
-    protected static $__enabled = false;
-    protected static $__count = 0;
-    protected static $__logs = array();
+    protected static $enabled = false;
+    protected static $count = 0;
+    protected static $logs = array();
 
     /**
      * Enable logs.
      */
     public static function enable()
     {
-        self::$__enabled = true;
+        self::$enabled = true;
     }
 
     /**
@@ -24,7 +24,7 @@ class CPDOLogger
      */
     public static function disable()
     {
-        self::$__enabled = false;
+        self::$enabled = false;
     }
 
     /**
@@ -34,7 +34,7 @@ class CPDOLogger
      */
     public static function isEnabled()
     {
-        return self::$__enabled;
+        return self::$enabled;
     }
 
     /**
@@ -47,8 +47,8 @@ class CPDOLogger
     public static function addLog($query, $time, $cache)
     {
         if (self::isEnabled()) {
-            self::$__count++;
-            self::$__logs[$query][] = array('time' => time(), 'execution_time' => $time, 'cached' => $cache);
+            self::$count++;
+            self::$logs[$query][] = array('time' => time(), 'execution_time' => $time, 'cached' => $cache);
         }
     }
 
@@ -59,7 +59,7 @@ class CPDOLogger
      */
     public static function getLogs()
     {
-        return array('count' => self::$__count, 'queries' => self::$__logs);
+        return array('count' => self::$count, 'queries' => self::$logs);
     }
 
     /**
@@ -69,7 +69,7 @@ class CPDOLogger
      */
     public static function getCounter()
     {
-        return self::$__count;
+        return self::$count;
     }
 
     /**
@@ -79,7 +79,7 @@ class CPDOLogger
      */
     public static function getQueries()
     {
-        return array_keys(self::$__logs);
+        return array_keys(self::$logs);
     }
 
     /**
@@ -87,7 +87,7 @@ class CPDOLogger
      */
     public static function cleanLogs()
     {
-        self::$__count = 0;
-        self::$__logs = array();
+        self::$count = 0;
+        self::$logs  = array();
     }
 }

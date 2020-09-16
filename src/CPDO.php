@@ -11,12 +11,12 @@ use PDOStatement;
  * Memory Cached PDO Class.
  *
  * @author    Marco Cesarato <cesarato.developer@gmail.com>
- * @copyright Copyright (c) 2019
+ * @copyright Copyright (c) 2020
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
  *
  * @see      https://github.com/marcocesarato/PHP-CPDO
  *
- * @version   0.2.3.44
+ * @version   0.2.3.47
  */
 class CPDO extends PDO
 {

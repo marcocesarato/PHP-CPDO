@@ -64,7 +64,7 @@ class CPDOStatement extends PDOStatement
      *
      * @return mixed|null
      */
-    public function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null)
+    public function fetch($fetch_style = null, $cursor_orientation = PDO::FETCH_ORI_NEXT, $cursor_offset = 0)
     {
         $args = array('fetch', $this->queryParams, $fetch_style);
 
